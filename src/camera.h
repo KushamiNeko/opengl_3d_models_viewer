@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 //#include <GLFW/glfw3.h>
 
-#include "../../../general/header/general_helper.h"
+#include "../../general/header/general_helper.h"
 
 #include "debug.h"
 #include "constant.h"

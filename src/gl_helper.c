@@ -1,4 +1,4 @@
-#include "../header/gl_helper.h"
+#include "gl_helper.h"
 
 GLuint generateVBO(const GLuint *vao, const int pointCounts,
                    const int vectorSize, const GLfloat *dataArray,
@@ -46,14 +46,14 @@ void generateShader(const GLuint *shaderProgram, const char *shaderFile,
                     const GLenum shaderType) {
   GLuint shader;
   switch (shaderType) {
-    case GL_VERTEX_SHADER: {
-      shader = glCreateShader(GL_VERTEX_SHADER);
-      break;
-    }
-    case GL_FRAGMENT_SHADER: {
-      shader = glCreateShader(GL_FRAGMENT_SHADER);
-      break;
-    }
+  case GL_VERTEX_SHADER: {
+    shader = glCreateShader(GL_VERTEX_SHADER);
+    break;
+  }
+  case GL_FRAGMENT_SHADER: {
+    shader = glCreateShader(GL_FRAGMENT_SHADER);
+    break;
+  }
   }
   glShaderSource(shader, 1, &shaderFile, NULL);
 
@@ -67,95 +67,95 @@ void generateShader(const GLuint *shaderProgram, const char *shaderFile,
 
 static int getTextureSlotInt(const GLenum textureSlot) {
   switch (textureSlot) {
-    case GL_TEXTURE0: {
-      return 0;
-      break;
-    }
-    case GL_TEXTURE1: {
-      return 1;
-      break;
-    }
-    case GL_TEXTURE2: {
-      return 2;
-      break;
-    }
-    case GL_TEXTURE3: {
-      return 3;
-      break;
-    }
-    case GL_TEXTURE4: {
-      return 4;
-      break;
-    }
-    case GL_TEXTURE5: {
-      return 5;
-      break;
-    }
-    case GL_TEXTURE6: {
-      return 6;
-      break;
-    }
-    case GL_TEXTURE7: {
-      return 7;
-      break;
-    }
-    case GL_TEXTURE8: {
-      return 8;
-      break;
-    }
-    case GL_TEXTURE9: {
-      return 9;
-      break;
-    }
-    case GL_TEXTURE10: {
-      return 10;
-      break;
-    }
-    case GL_TEXTURE11: {
-      return 11;
-      break;
-    }
-    case GL_TEXTURE12: {
-      return 12;
-      break;
-    }
-    case GL_TEXTURE13: {
-      return 13;
-      break;
-    }
-    case GL_TEXTURE14: {
-      return 14;
-      break;
-    }
-    case GL_TEXTURE15: {
-      return 15;
-      break;
-    }
-    case GL_TEXTURE16: {
-      return 16;
-      break;
-    }
-    case GL_TEXTURE17: {
-      return 17;
-      break;
-    }
-    case GL_TEXTURE18: {
-      return 18;
-      break;
-    }
-    case GL_TEXTURE19: {
-      return 19;
-      break;
-    }
-    case GL_TEXTURE20: {
-      return 20;
-      break;
-    }
+  case GL_TEXTURE0: {
+    return 0;
+    break;
+  }
+  case GL_TEXTURE1: {
+    return 1;
+    break;
+  }
+  case GL_TEXTURE2: {
+    return 2;
+    break;
+  }
+  case GL_TEXTURE3: {
+    return 3;
+    break;
+  }
+  case GL_TEXTURE4: {
+    return 4;
+    break;
+  }
+  case GL_TEXTURE5: {
+    return 5;
+    break;
+  }
+  case GL_TEXTURE6: {
+    return 6;
+    break;
+  }
+  case GL_TEXTURE7: {
+    return 7;
+    break;
+  }
+  case GL_TEXTURE8: {
+    return 8;
+    break;
+  }
+  case GL_TEXTURE9: {
+    return 9;
+    break;
+  }
+  case GL_TEXTURE10: {
+    return 10;
+    break;
+  }
+  case GL_TEXTURE11: {
+    return 11;
+    break;
+  }
+  case GL_TEXTURE12: {
+    return 12;
+    break;
+  }
+  case GL_TEXTURE13: {
+    return 13;
+    break;
+  }
+  case GL_TEXTURE14: {
+    return 14;
+    break;
+  }
+  case GL_TEXTURE15: {
+    return 15;
+    break;
+  }
+  case GL_TEXTURE16: {
+    return 16;
+    break;
+  }
+  case GL_TEXTURE17: {
+    return 17;
+    break;
+  }
+  case GL_TEXTURE18: {
+    return 18;
+    break;
+  }
+  case GL_TEXTURE19: {
+    return 19;
+    break;
+  }
+  case GL_TEXTURE20: {
+    return 20;
+    break;
+  }
 
-    default: {
-      return -1;
-      break;
-    }
+  default: {
+    return -1;
+    break;
+  }
   }
 }
 

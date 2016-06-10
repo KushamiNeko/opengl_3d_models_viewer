@@ -1,14 +1,14 @@
-#include "header/main_window.h"
-#include "header/obj_model.h"
-#include "header/camera.h"
-#include "header/constant.h"
+#include "main_window.h"
+#include "obj_model.h"
+#include "camera.h"
+#include "constant.h"
 
 int main(int argc, char **argv) {
   gtk_init(&argc, &argv);
 
   struct MainWindow *window = mainWindowNew(GL_WIDTH, GL_HEIGHT);
 
-  struct Camera *camera = cameraNew(CAMERA_SPEED, 77.0f);
+  struct Camera *camera = cameraNew(CAMERA_ROTATE_SPEED, 77.0f);
   struct ObjModel *model =
       objModelNew(OBJ_MODEL, VERTEX_SHADER, FRAGMENT_SHADER);
 

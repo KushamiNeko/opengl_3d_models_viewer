@@ -1,4 +1,4 @@
-#include "../header/obj_model.h"
+#include "obj_model.h"
 
 static GLuint constShaderProgram(const char *vertFile, const char *fragFile) {
   const char *vertexShader = readShader(vertFile);

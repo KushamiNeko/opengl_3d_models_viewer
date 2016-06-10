@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 #include "linear_math.h"
-#include "../../../general/header/general_helper.h"
+#include "../../general/src/general_helper.h"
 
 #ifndef __DEBUG
 #include "debug.h"

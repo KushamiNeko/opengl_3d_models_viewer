@@ -1,8 +1,8 @@
-#include "../header/linear_math.h"
+#include "linear_math.h"
 
 #define TAU 2.0 * M_PI
-#define ONE_DEG_IN_RAD (2.0 * M_PI) / 360.0  // 0.017444444
-#define ONE_RAD_IN_DEG 360.0 / (2.0 * M_PI)  // 57.2957795
+#define ONE_DEG_IN_RAD (2.0 * M_PI) / 360.0 // 0.017444444
+#define ONE_RAD_IN_DEG 360.0 / (2.0 * M_PI) // 57.2957795
 
 #define VEC2_SIZE 2
 #define VEC3_SIZE 3
@@ -675,7 +675,7 @@ _FLOAT *perspective(_FLOAT fovy, _FLOAT aspect, _FLOAT near, _FLOAT far) {
   _FLOAT sy = near / range;
   _FLOAT sz = -(far + near) / (far - near);
   _FLOAT pz = -(2.0f * far * near) / (far - near);
-  _FLOAT *m = zeroMat4();  // make sure bottom-right corner is zero
+  _FLOAT *m = zeroMat4(); // make sure bottom-right corner is zero
   // note that the matrix is in cloumn major order
   m[0] = sx;
   m[5] = sy;

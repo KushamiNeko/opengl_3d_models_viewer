@@ -4,7 +4,7 @@
 #include "obj_parser.h"
 #include "gl_helper.h"
 
-#include "../../../general/header/general_helper.h"
+#include "../../general/header/general_helper.h"
 
 struct ObjModel {
   obj *model;

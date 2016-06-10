@@ -1,4 +1,4 @@
-#include "../header/camera.h"
+#include "camera.h"
 #define ONE_DEG_IN_RAD (2.0f * M_PI) / 360.0f
 
 static void calcCamT(struct Camera *camera) {
@@ -53,9 +53,7 @@ struct Camera *cameraNew(GLfloat speed, GLfloat fov) {
 
   calcCamT(re);
 
-  // GLfloat *identityMat = identityMat4();
   re->camR = lookAt(re->position, re->origin, re->up);
-  // matFree(identityMat);
 
   calcViewMat(re);
   calcProjMat(re);
@@ -82,12 +80,13 @@ GLfloat *cameraGetProjMat(struct Camera *camera) {
 }
 
 void cameraSetFOV(struct Camera *camera, GLfloat fov) {
-  if (fov <= 0) {
-    printf("software defense break!\n");
-    exit(1);
+  if (fov < CAMERA_FOV_MIN) {
+    camera->fov = CAMERA_FOV_MIN;
+  } else if (fov > CAMERA_FOV_MAX) {
+    camera->fov = CAMERA_FOV_MAX;
+  } else {
+    camera->fov = fov;
   }
-
-  camera->fov = fov;
 }
 
 void cameraRotate(struct Camera *camera) {

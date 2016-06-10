@@ -1,4 +1,4 @@
-#include "../header/main_window.h"
+#include "main_window.h"
 
 static gboolean MOUSE_CLICKED = FALSE;
 static double MOUSE_START_X = 0.0f;
@@ -13,7 +13,9 @@ static gboolean mouseClicked(GtkWidget *widget, GdkEvent *event,
   MOUSE_CLICKED = TRUE;
   MOUSE_START_X = event->motion.x;
   MOUSE_START_Y = event->motion.y;
+
   MOUSE_START_LON = cameraGetMovementLon(user->camera);
+
   MOUSE_START_LAT = cameraGetMovementLat(user->camera);
 }
 
@@ -25,8 +27,10 @@ static gboolean motionNotify(GtkWidget *widget, GdkEvent *event,
     double motionX = event->motion.x - MOUSE_START_X;
     double motionY = event->motion.y - MOUSE_START_Y;
 
-    cameraSetMovementLon(user->camera, (motionX * 0.1) + MOUSE_START_LON);
-    cameraSetMovementLat(user->camera, (motionY * 0.1) + MOUSE_START_LAT);
+    cameraSetMovementLon(user->camera,
+                         (motionX * user->camera->speed) + MOUSE_START_LON);
+    cameraSetMovementLat(user->camera,
+                         (motionY * user->camera->speed) + MOUSE_START_LAT);
 
     cameraRotate(user->camera);
 
@@ -39,6 +43,17 @@ static gboolean mouseReleased(GtkWidget *widget, GdkEvent *event,
   MOUSE_CLICKED = FALSE;
 }
 
+static void mouseScroll(GtkWidget *widget, GdkEvent *event, void *userData) {
+  struct MainWindow *user = (struct MainWindow *)userData;
+
+  GLfloat scrollY = (GLfloat)event->scroll.delta_y;
+  GLfloat currentFOV = user->camera->fov;
+
+  cameraSetFOV(user->camera, currentFOV - (scrollY * -CAMERA_SCROLL_SPEED));
+
+  gtk_gl_area_queue_render(GTK_GL_AREA(user->glArea));
+}
+
 static void updateViewMat(struct MainWindow *mainWindow) {
   glUniformMatrix4fv(mainWindow->viewMatLoc, 1, GL_FALSE,
                      cameraGetViewMat(mainWindow->camera));
@@ -47,13 +62,6 @@ static void updateViewMat(struct MainWindow *mainWindow) {
 static void updateProjMat(struct MainWindow *mainWindow) {
   glUniformMatrix4fv(mainWindow->projMatLoc, 1, GL_FALSE,
                      cameraGetProjMat(mainWindow->camera));
-}
-
-static void sliderRangeChanged(GtkRange *range, void *userData) {
-  struct MainWindow *user = (struct MainWindow *)userData;
-  double value = gtk_range_get_value(range);
-  cameraSetFOV(user->camera, (GLfloat)value);
-  gtk_gl_area_queue_render(GTK_GL_AREA(user->glArea));
 }
 
 static gboolean glRender(GtkGLArea *area, GdkGLContext *context,
@@ -158,9 +166,10 @@ struct MainWindow *mainWindowNew(const unsigned int glWidth,
   gtk_window_set_position(GTK_WINDOW(re->window), GTK_WIN_POS_CENTER);
   gtk_window_set_resizable(GTK_WINDOW(re->window), FALSE);
 
-  gtk_widget_set_events(
-      re->window, GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY | GDK_BUTTON_PRESS_MASK |
-                      GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK);
+  gtk_widget_set_events(re->window,
+                        GDK_EXPOSURE_MASK | GDK_LEAVE_NOTIFY |
+                            GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK |
+                            GDK_POINTER_MOTION_HINT_MASK | GDK_SCROLL_MASK);
 
   re->container = gtk_box_new(GTK_ORIENTATION_VERTICAL, BOX_SPACE);
   gtk_widget_set_margin_bottom(GTK_WIDGET(re->container), WIDGET_MARGIN);
@@ -179,12 +188,6 @@ struct MainWindow *mainWindowNew(const unsigned int glWidth,
   // actually need it
   gtk_gl_area_set_auto_render(GTK_GL_AREA(re->glArea), FALSE);
 
-  // function for initializing Gtk GL area
-
-  re->slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 20.0f,
-                                        90.0f, 0.000001f);
-  gtk_container_add(GTK_CONTAINER(re->container), re->slider);
-
   re->button = gtk_button_new_with_label("Choose Texture");
   gtk_container_add(GTK_CONTAINER(re->container), re->button);
 
@@ -196,11 +199,11 @@ struct MainWindow *mainWindowNew(const unsigned int glWidth,
                    re);
   g_signal_connect(re->window, "button-release-event",
                    G_CALLBACK(mouseReleased), re);
+  g_signal_connect(re->window, "scroll-event", G_CALLBACK(mouseScroll), re);
 
   g_signal_connect(re->glArea, "realize", G_CALLBACK(glRealize), NULL);
   g_signal_connect(re->glArea, "render", G_CALLBACK(glRender), re);
-  g_signal_connect(re->slider, "value-changed", G_CALLBACK(sliderRangeChanged),
-                   re);
+
   g_signal_connect(re->button, "clicked", G_CALLBACK(buttonClicked), re);
 
   gtk_widget_show_all(re->window);
@@ -229,7 +232,6 @@ void mainWindowSetObjModel(struct MainWindow *mainWindow,
 
 void mainWindowSetCamera(struct MainWindow *mainWindow, struct Camera *camera) {
   mainWindow->camera = camera;
-  gtk_range_set_value(GTK_RANGE(mainWindow->slider), camera->fov);
 
   updateViewMat(mainWindow);
   updateProjMat(mainWindow);

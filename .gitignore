@@ -4,3 +4,5 @@
 *.mtl
 bin
 pkg
+TAGS
+.clang_complete

@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 
-#include "../../../general/header/general_helper.h"
+#include "../../general/src/general_helper.h"
 
 #include "constant.h"
 #include "obj_model.h"
@@ -18,7 +18,6 @@ struct MainWindow {
   GtkWidget *window;
   GtkWidget *container;
   GtkWidget *glArea;
-  GtkWidget *slider;
   GtkWidget *button;
 
   struct ObjModel *model;

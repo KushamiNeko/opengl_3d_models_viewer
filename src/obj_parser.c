@@ -1,4 +1,4 @@
-#include "../header/obj_parser.h"
+#include "obj_parser.h"
 
 #if __LIBRARY_PARSER
 obj *load_obj(const char *file_name) {
