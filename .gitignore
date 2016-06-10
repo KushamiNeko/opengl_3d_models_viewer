@@ -1,0 +1,6 @@
+*.jpg
+*.png
+*.obj
+*.mtl
+bin
+pkg
