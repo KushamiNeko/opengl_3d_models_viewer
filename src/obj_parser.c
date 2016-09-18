@@ -21,14 +21,10 @@ obj *load_obj(const char *file_name) {
   // float *vt = (float *)malloc(sizeof(float) * model->point_counts * 2);
   // float *vtan = (float *)malloc(sizeof(float) * model->point_counts * 4);
 
-  float *vp =
-      (float *)defenseCalloc(1, sizeof(float) * model->point_counts * 3);
-  float *vn =
-      (float *)defenseCalloc(1, sizeof(float) * model->point_counts * 3);
-  float *vt =
-      (float *)defenseCalloc(1, sizeof(float) * model->point_counts * 2);
-  float *vtan =
-      (float *)defenseCalloc(1, sizeof(float) * model->point_counts * 4);
+  float *vp = (float *)malloc(sizeof(float) * model->point_counts * 3);
+  float *vn = (float *)malloc(sizeof(float) * model->point_counts * 3);
+  float *vt = (float *)malloc(sizeof(float) * model->point_counts * 2);
+  float *vtan = (float *)malloc(sizeof(float) * model->point_counts * 4);
 
   for (int i = 0; i < model->point_counts; i++) {
     const struct aiVector3D *vpos = &(mesh->mVertices[i]);
@@ -45,15 +41,15 @@ obj *load_obj(const char *file_name) {
     const struct aiVector3D *tangent = &(mesh->mTangents[i]);
     const struct aiVector3D *bitangent = &(mesh->mBitangents[i]);
 
-    _FLOAT *t =
+    vec3 t =
         vec3New((GLfloat)tangent->x, (GLfloat)tangent->y, (GLfloat)tangent->z);
-    _FLOAT *n = vec3New((GLfloat)vnor->x, (GLfloat)vnor->y, (GLfloat)vnor->z);
-    _FLOAT *b = vec3New((GLfloat)bitangent->x, (GLfloat)bitangent->y,
-                        (GLfloat)bitangent->z);
+    vec3 n = vec3New((GLfloat)vnor->x, (GLfloat)vnor->y, (GLfloat)vnor->z);
+    vec3 b = vec3New((GLfloat)bitangent->x, (GLfloat)bitangent->y,
+                     (GLfloat)bitangent->z);
 
     // orthogonalize and normalize the tangent
     // approximating a T, N, B inverse matrix
-    _FLOAT *t_i = vec3Normalize(vec3Sub(t, vec3MultFloat(n, vec3Dot(n, t))));
+    vec3 t_i = vec3Normalize(vec3Sub(t, vec3MultFloat(n, vec3Dot(n, t))));
     // get determinant of T, B, N 3x3 matrix by dot * cross
     // this is a short-cut calculation
     // we can build a mat3 by using 3 vectors and get the determinant instead
@@ -64,9 +60,9 @@ obj *load_obj(const char *file_name) {
       det = 1.0f;
     }
 
-    vtan[i * 4] = t_i[0];
-    vtan[i * 4 + 1] = t_i[1];
-    vtan[i * 4 + 2] = t_i[2];
+    vtan[i * 4] = vec3GetData(t_i)[0];
+    vtan[i * 4 + 1] = vec3GetData(t_i)[1];
+    vtan[i * 4 + 2] = vec3GetData(t_i)[2];
     vtan[i * 4 + 3] = det;
 
     vecFree(t);

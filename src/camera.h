@@ -4,46 +4,45 @@
 #include <GL/glew.h>
 //#include <GLFW/glfw3.h>
 
-#include "../../general/header/general_helper.h"
+#include "../../general/src/general_helper.h"
+#include "../../general/src/linear_math.h"
 
-#include "debug.h"
+//#include "debug.h"
 #include "constant.h"
-#include "linear_math.h"
+//#include "linear_math.h"
 
 struct Camera {
-  GLfloat *position;
-  GLfloat *origin;
-  GLfloat *up;
+  vec3 position;
+  vec3 origin;
+  vec3 up;
 
-  GLfloat fov;
+  double fov;
 
-  GLfloat speed;
+  double speed;
 
-  GLfloat *camT;
-  GLfloat *camR;
+  mat4 camT;
+  mat4 camR;
 
-  GLfloat *viewMat;
-  GLfloat *projMat;
+  mat4 viewMat;
+  mat4 projMat;
 
   void *movement;
 };
 
-struct Camera *cameraNew(GLfloat speed, GLfloat fov);
+struct Camera *cameraNew(double speed, double fov);
+
 void cameraFree(struct Camera *camera);
 
-// void cameraRotateX(struct Camera *camera, GLfloat degree);
 void cameraRotate(struct Camera *camera);
-// void cameraRotateZ(struct Camera *camera, GLfloat degree);
 
-void cameraSetFOV(struct Camera *camera, GLfloat fov);
+void cameraSetFOV(struct Camera *camera, double fov);
 
-GLfloat *cameraGetViewMat(struct Camera *camera);
-GLfloat *cameraGetProjMat(struct Camera *camera);
+mat4 cameraGetViewMat(struct Camera *camera);
+mat4 cameraGetProjMat(struct Camera *camera);
 
-void cameraSetMovementLon(struct Camera *camera, double newLon);
-void cameraSetMovementLat(struct Camera *camera, double newLat);
-
-double cameraGetMovementLon(struct Camera *camera);
-double cameraGetMovementLat(struct Camera *camera);
+inline void cameraSetMovementLon(struct Camera *camera, double newLon);
+inline inline void cameraSetMovementLat(struct Camera *camera, double newLat);
+inline inline double cameraGetMovementLon(struct Camera *camera);
+inline inline double cameraGetMovementLat(struct Camera *camera);
 
 #endif

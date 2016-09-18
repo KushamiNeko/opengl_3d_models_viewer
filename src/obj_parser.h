@@ -9,12 +9,13 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "linear_math.h"
+//#include "linear_math.h"
 #include "../../general/src/general_helper.h"
+#include "../../general/src/linear_math.h"
 
-#ifndef __DEBUG
-#include "debug.h"
-#endif
+/* #ifndef __DEBUG */
+/* #include "debug.h" */
+/* #endif */
 
 #define __LIBRARY_PARSER 1
 

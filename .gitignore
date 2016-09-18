@@ -3,7 +3,6 @@
 *.obj
 *.mtl
 bin
-pkg
-TAGS
+tag
 .clang_complete
 reference
