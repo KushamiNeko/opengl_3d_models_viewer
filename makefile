@@ -4,7 +4,8 @@ else
 	FLAGS = -O3 -Wall -Werror -s 
 endif
 
-GENERAL_HELPER = ~/programming_projects/c/general/bin
+#GENERAL_HELPER = ~/programming_projects/c/general/bin
+GENERAL_HELPER = /d/Working_File/programming/c/c_general/bin
 
 
 #bin/main : bin/main_window bin/obj_model bin/obj_parser bin/linear_math bin/gl_helper bin/camera
