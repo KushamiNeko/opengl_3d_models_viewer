@@ -2,6 +2,7 @@
 *.png
 *.obj
 *.mtl
+*.txt
 bin
 tag
 .clang_complete

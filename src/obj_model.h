@@ -3,16 +3,19 @@
 
 #include <glib-2.0/glib.h>
 
-#include "obj_parser.h"
+//#include "obj_parser.h"
 #include "shader.h"
 
 #include "../../general/src/general_helper.h"
 #include "../../general/src/gl_helper.h"
+#include "../../general/src/obj_parser.h"
+
+#include "../../general/src/debug_macro.h"
 
 struct ObjModel {
-  obj *model;
+  struct Obj *model;
 
-  //GLuint shaderProgram;
+  // GLuint shaderProgram;
   struct Shader *shader;
 
   GLuint VAO;
@@ -21,24 +24,25 @@ struct ObjModel {
   GLuint normalVBO;
   GLuint tangentVBO;
 
-//  char *diffTexFile;
-//  GLuint diffTex;
-//  GLint diffTexLoc;
-//
-//  char *specTexFile;
-//  GLuint specTex;
-//  GLint specTexLoc;
-//
-//  char *normalTexFile;
-//  GLuint normalTex;
-//  GLint normalTexLoc;
+  //  char *diffTexFile;
+  //  GLuint diffTex;
+  //  GLint diffTexLoc;
+  //
+  //  char *specTexFile;
+  //  GLuint specTex;
+  //  GLint specTexLoc;
+  //
+  //  char *normalTexFile;
+  //  GLuint normalTex;
+  //  GLint normalTexLoc;
 };
 
-struct ObjModel *objModelNew(const char *objFile);
+struct ObjModel *objModelNew(const char *objFile, struct Shader *shader);
+// struct ObjModel *objModelNew(const char *objFile);
 
 void objModelFree(struct ObjModel *model);
 
-//void objModelSetShader(struct ObjModel *model, struct Shader *shader);
+// void objModelSetShader(struct ObjModel *model, struct Shader *shader);
 
 // GLuint objModelGenTexLoc(GLenum textureSlot, const char *textureName);
 // void objModelLoadTextureMap(struct ObjModel *model, const char *textureFile,
@@ -47,13 +51,14 @@ void objModelFree(struct ObjModel *model);
 // void objModelLoadTextureMap(struct ObjModel *model, char *textureFile,
 //                            GLenum textureSlot, char *textureName);
 
-//gboolean objModelSetDiffuseTexture(struct ObjModel *model, char *textureFile,
+// gboolean objModelSetDiffuseTexture(struct ObjModel *model, char *textureFile,
 //                                   GLenum textureSlot);
 //
-//gboolean objModelSetSpecularTexture(struct ObjModel *model, char *textureFile,
+// gboolean objModelSetSpecularTexture(struct ObjModel *model, char
+// *textureFile,
 //                                    GLenum textureSlot);
 //
-//gboolean objModelSetNormalTexture(struct ObjModel *model, char *textureFile,
+// gboolean objModelSetNormalTexture(struct ObjModel *model, char *textureFile,
 //                                  GLenum textureSlot);
 
 #endif

@@ -1,6 +1,6 @@
 #include "obj_model.h"
 
-#include <cmockery/pbc.h>
+//#include <cmockery/pbc.h>
 
 #ifdef UNIT_TESTING
 #include <cmockery/cmockery_override.h>
@@ -61,7 +61,7 @@ struct ObjModel *objModelNew(const char *objFile, struct Shader *shader) {
   // ENSURE(re->specTexLoc != 0);
   // ENSURE(re->normalTexLoc != 0);
 
-  re->model = load_obj(objFile);
+  re->model = objLoad(objFile);
 
   ENSURE(re->model->vp != NULL);
   ENSURE(re->model->vn != NULL);
@@ -114,11 +114,11 @@ void objModelFree(struct ObjModel *model) {
   glDeleteVertexArrays(1, &model->VAO);
   // glDeleteProgram(model->shaderProgram);
 
-  obj_free(model->model);
+  objFree(model->model);
   DEFENSE_FREE(model);
 }
 
-//void objModelSetShader(struct ObjModel *model, struct Shader *shader) {
+// void objModelSetShader(struct ObjModel *model, struct Shader *shader) {
 //  REQUIRE(model != NULL);
 //  REQUIRE(shader != NULL);
 //
@@ -182,7 +182,7 @@ void objModelFree(struct ObjModel *model) {
 //  //  }
 //}
 
-//gboolean objModelSetDiffuseTexture(struct ObjModel *model, char *textureFile,
+// gboolean objModelSetDiffuseTexture(struct ObjModel *model, char *textureFile,
 //                                   GLenum textureSlot) {
 //  REQUIRE(textureFile != NULL);
 //  REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
@@ -200,7 +200,8 @@ void objModelFree(struct ObjModel *model) {
 //  }
 //}
 //
-//gboolean objModelSetSpecularTexture(struct ObjModel *model, char *textureFile,
+// gboolean objModelSetSpecularTexture(struct ObjModel *model, char
+// *textureFile,
 //                                    GLenum textureSlot) {
 //  REQUIRE(textureFile != NULL);
 //  REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
@@ -218,7 +219,7 @@ void objModelFree(struct ObjModel *model) {
 //  }
 //}
 //
-//gboolean objModelSetNormalTexture(struct ObjModel *model, char *textureFile,
+// gboolean objModelSetNormalTexture(struct ObjModel *model, char *textureFile,
 //                                  GLenum textureSlot) {
 //  REQUIRE(textureFile != NULL);
 //  REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));

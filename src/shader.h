@@ -22,22 +22,31 @@ struct Shader {
   char *normalTexFile;
   GLuint normalTex;
   GLint normalTexLoc;
+
+  const char **cubeMapFile;
+  GLuint cubeMapTex;
+  GLint cubeMapTexLoc;
 };
 
 struct Shader *shaderNew(const char *vertexShader, const char *fragmentShader);
 
-void shaderFree(struct ObjModel *model);
+void shaderFree(struct Shader *shader);
 
 // void objModelLoadTextureMap(struct ObjModel *model, char *textureFile,
 //                            GLenum textureSlot, char *textureName);
 
 gboolean shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
-                                 shader GLenum textureSlot);
+                                 GLenum textureSlot);
 
 gboolean shaderSetSpecularTexture(struct Shader *shader, char *textureFile,
-                                  shader GLenum textureSlot);
+                                  GLenum textureSlot);
 
 gboolean shaderSetNormalTexture(struct Shader *shader, char *textureFile,
                                 GLenum textureSlot);
+
+gboolean shaderSetCubeMap(struct Shader *shader, const char *front,
+                          const char *back, const char *top, const char *bottom,
+                          const char *right, const char *left,
+                          GLenum textureSlot);
 
 #endif
