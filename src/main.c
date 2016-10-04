@@ -12,10 +12,29 @@
 #include "../../general/src/debug_macro.h"
 #include "../../general/src/linear_math.h"
 
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_IMPLEMENTATION
+#define NK_GLFW_GL3_IMPLEMENTATION
+
+#include "../../third_party/nuklear/nuklear.h"
+////
+#include "../../third_party/nuklear/demo/glfw_opengl3/nuklear_glfw_gl3.h"
+
 #include "obj_model.h"
 #include "shader.h"
 
-#define ANTI_ALIAS_LEVEL 4
+#define ANTI_ALIAS_LEVEL 8
+
+#define MAX_VERTEX_BUFFER 256 * 1024
+#define MAX_ELEMENT_BUFFER 128 * 1024
+
+//#define SHADER_CONTROL_MARGIN 10
 
 //#define STANDARD_SHADER_VERTEX "src/shader/vertex_shader.vert"
 //#define STANDARD_SHADER_FRAGMENT "src/shader/fragment_shader.frag"
@@ -81,47 +100,62 @@ static void updateFpsCounter(GLFWwindow *window) {
 gboolean camera_control(GLFWwindow *window, float *cam_pos, float *cam_yaw,
                         double cam_speed, double cam_yaw_speed,
                         double elapsed_seconds) {
-  gboolean cam_moved = FALSE;
+  // gboolean cam_moved = FALSE;
+
   if (glfwGetKey(window, GLFW_KEY_H)) {
     cam_pos[0] = 0.0f;
     cam_pos[1] = 0.0f;
-    cam_pos[2] = 3.0f;
-    *cam_yaw = 0.0f;
-    cam_moved = TRUE;
+    cam_pos[2] = 2.5f;
+    *cam_yaw = -45.0f;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
   if (glfwGetKey(window, GLFW_KEY_A)) {
     cam_pos[0] -= cam_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
   if (glfwGetKey(window, GLFW_KEY_D)) {
     cam_pos[0] += cam_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
   if (glfwGetKey(window, GLFW_KEY_W)) {
     cam_pos[2] -= cam_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
   if (glfwGetKey(window, GLFW_KEY_S)) {
     cam_pos[2] += cam_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
   if (glfwGetKey(window, GLFW_KEY_Q)) {
     cam_pos[1] += cam_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
   if (glfwGetKey(window, GLFW_KEY_E)) {
     cam_pos[1] -= cam_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
   if (glfwGetKey(window, GLFW_KEY_C)) {
     *cam_yaw += cam_yaw_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    goto return_ture;
+    // cam_moved = TRUE;
   }
   if (glfwGetKey(window, GLFW_KEY_Z)) {
     *cam_yaw -= cam_yaw_speed * elapsed_seconds;
-    cam_moved = TRUE;
+    // cam_moved = TRUE;
+    goto return_ture;
   }
-  return cam_moved;
+  // return cam_moved;
+
+  return FALSE;
+
+return_ture:
+  return TRUE;
 }
 
 int main(int argc, char const *argv[]) {
@@ -178,6 +212,30 @@ int main(int argc, char const *argv[]) {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+
+  // GL_CCW for counter clock-wise vertex winding order
+  glFrontFace(GL_CCW);
+
+  // NUKLEAR UI--------------------------------------------------------
+
+  struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
+
+  struct nk_font_atlas *atlas;
+
+  nk_glfw3_font_stash_begin(&atlas);
+
+  struct nk_font *droid = nk_font_atlas_add_from_file(
+      atlas, "/usr/share/fonts/liberation/LiberationSans-Regular.ttf", 16, 0);
+
+  nk_glfw3_font_stash_end();
+
+  // nk_style_load_all_cursors(ctx, atlas->cursors);
+  nk_style_set_font(ctx, &droid->handle);
+
+  struct nk_color background = nk_rgb(28, 48, 62);
+
   // MAIN OPENGL PROGRAM--------------------------------------------------------
 
   struct Shader *modelShader =
@@ -185,11 +243,11 @@ int main(int argc, char const *argv[]) {
 
   shaderSetCubeMap(modelShader, TEST_CUBE_MAP_NEG_Z, TEST_CUBE_MAP_POS_Z,
                    TEST_CUBE_MAP_POS_Y, TEST_CUBE_MAP_NEG_Y,
-                   TEST_CUBE_MAP_POS_X, TEST_CUBE_MAP_NEG_X, GL_TEXTURE3);
+                   TEST_CUBE_MAP_POS_X, TEST_CUBE_MAP_NEG_X, GL_TEXTURE9);
 
-  shaderSetDiffuseTexture(modelShader, TEST_MODEL_COLOR, GL_TEXTURE0);
-  shaderSetSpecularTexture(modelShader, TEST_MODEL_SPEC, GL_TEXTURE1);
-  shaderSetNormalTexture(modelShader, TEST_MODEL_NORMAL, GL_TEXTURE2);
+  shaderSetDiffuseTexture(modelShader, TEST_MODEL_COLOR, GL_TEXTURE6);
+  shaderSetSpecularTexture(modelShader, TEST_MODEL_SPEC, GL_TEXTURE7);
+  shaderSetNormalTexture(modelShader, TEST_MODEL_NORMAL, GL_TEXTURE8);
 
   struct ObjModel *model = objModelNew(TEST_MODEL, modelShader);
 
@@ -199,14 +257,16 @@ int main(int argc, char const *argv[]) {
   float cam_yaw_speed = 60.0f;
 
   float cam_pos[] = {0.0f, 0.0, 2.5f};
-  float cam_yaw = 0.0f;
+  float cam_yaw = -45.0f;
 
   mat4 i = identityMat4();
   vec3 camDir = vec3New(-cam_pos[0], -cam_pos[1], -cam_pos[2]);
 
   mat4 camT = translate(i, camDir);
 
-  mat4 camR = rotateYdeg(i, -cam_yaw);
+  versor rot_y = quatFromAxisDeg(cam_yaw, 0.0f, 1.0f, 0.0f);
+  mat4 camR = quatToMat4(rot_y);
+  // mat4 camR = rotateYdeg(i, -cam_yaw);
 
   mat4 view_mat = mat4MulMat4(camR, camT);
 
@@ -231,12 +291,6 @@ int main(int argc, char const *argv[]) {
   glUseProgram(modelShader->shaderProgram);
 
   glUniformMatrix4fv(proj_mat_loc, 1, GL_FALSE, mat4GetData(proj_mat));
-
-  glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK);
-
-  // GL_CCW for counter clock-wise vertex winding order
-  glFrontFace(GL_CCW);
 
   // drawing loop
   while (!glfwWindowShouldClose(window)) {
@@ -273,6 +327,112 @@ int main(int argc, char const *argv[]) {
 
     updateFpsCounter(window);
 
+    glfwPollEvents();
+
+    // NUKLEAR UI--------------------------------------------------------
+
+    nk_glfw3_new_frame();
+
+    struct nk_panel layout;
+
+    if (nk_begin(ctx, &layout, "Shader Control", nk_rect(20, 20, 250, 850),
+                 NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
+                     NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
+      // nk_layout_row_static(ctx, 30, 80, 1);
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+
+      nk_label(ctx, "OBJ Model: ", NK_TEXT_LEFT);
+      static char *modelFile = "sphere.obj";
+      nk_label(ctx, modelFile, NK_TEXT_CENTERED);
+
+      if (nk_button_label(ctx, "Model")) {
+        printf("Model pressed\n");
+        modelFile = "hello";
+      }
+
+      // nk_layout_row_dynamic(ctx, 30, 1);
+
+      nk_label(ctx, "Diffuse Map: ", NK_TEXT_LEFT);
+      static char *diffuseFile = "01.jpg";
+      nk_label(ctx, diffuseFile, NK_TEXT_CENTERED);
+
+      if (nk_button_label(ctx, "Diffuse Map")) {
+        printf("Diffuse Map pressed\n");
+        diffuseFile = "hello";
+      }
+
+      nk_label(ctx, "Reflection Map: ", NK_TEXT_LEFT);
+      static char *reflectFile = "01.jpg";
+      nk_label(ctx, reflectFile, NK_TEXT_CENTERED);
+
+      if (nk_button_label(ctx, "Reflection Map")) {
+        printf("Reflection Map pressed\n");
+        reflectFile = "hello";
+      }
+
+      nk_label(ctx, "Normal Map: ", NK_TEXT_LEFT);
+      static char *normalFile = "01.jpg";
+      nk_label(ctx, normalFile, NK_TEXT_CENTERED);
+
+      if (nk_button_label(ctx, "Normal Map")) {
+        printf("Normal Map pressed\n");
+        normalFile = "hello";
+      }
+
+      // nk_layout_row_dynamic(ctx, 30, 2);
+      // if (nk_option_label(ctx, "easy", op == EASY)) op = EASY;
+      // if (nk_option_label(ctx, "hard", op == HARD)) op = HARD;
+
+      struct nk_panel combo;
+      nk_layout_row_dynamic(ctx, 20, 1);
+
+      nk_label(ctx, "Reflection:", NK_TEXT_LEFT);
+
+      nk_layout_row_dynamic(ctx, 25, 1);
+
+      if (nk_combo_begin_color(ctx, &combo, background,
+                               nk_vec2(nk_widget_width(ctx), 400))) {
+        nk_layout_row_dynamic(ctx, 120, 1);
+
+        background = nk_color_picker(ctx, background, NK_RGBA);
+
+        nk_layout_row_dynamic(ctx, 25, 1);
+
+        background.r =
+            (nk_byte)nk_propertyi(ctx, "#R:", 0, background.r, 255, 1, 1);
+
+        background.g =
+            (nk_byte)nk_propertyi(ctx, "#G:", 0, background.g, 255, 1, 1);
+
+        background.b =
+            (nk_byte)nk_propertyi(ctx, "#B:", 0, background.b, 255, 1, 1);
+
+        background.a =
+            (nk_byte)nk_propertyi(ctx, "#A:", 0, background.a, 255, 1, 1);
+
+        nk_combo_end(ctx);
+      }
+
+      static int glossiness = 20;
+      nk_layout_row_dynamic(ctx, 25, 1);
+      nk_property_int(ctx, "Glossiness:", 0, &glossiness, 100, 10, 1);
+    }
+
+    nk_end(ctx);
+
+    // NUKLEAR UI--------------------------------------------------------
+
+    glfwMakeContextCurrent(window);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glFrontFace(GL_CCW);
+
     // clear the gl buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // resize the gl viewport
@@ -281,11 +441,18 @@ int main(int argc, char const *argv[]) {
     glUseProgram(modelShader->shaderProgram);
     glBindVertexArray(model->VAO);
     glDrawArrays(GL_TRIANGLES, 0, model->model->point_counts);
+
     // glDrawArrays(GL_LINES, 0, model->model->point_counts);
     // glDrawArrays(GL_POINTS, 0, model->model->point_counts);
 
+    // NUKLEAR UI--------------------------------------------------------
+
+    nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+
+    // NUKLEAR UI--------------------------------------------------------
+
     // update other events like input handling
-    glfwPollEvents();
+
     // put buffer onto the display
     glfwSwapBuffers(window);
 
@@ -295,6 +462,12 @@ int main(int argc, char const *argv[]) {
   }
 
   // END OPENGL PROGRAM
+
+  // NUKLEAR UI--------------------------------------------------------
+
+  nk_glfw3_shutdown();
+
+  // NUKLEAR UI--------------------------------------------------------
 
   // close GL context and any other GLFW resourse
   glfwTerminate();
