@@ -1,6 +1,6 @@
 #include "shader.h"
 
-#include <cmockery/pbc.h>
+//#include <cmockery/pbc.h>
 
 #ifdef UNIT_TESTING
 #include <cmockery/cmockery_override.h>
@@ -12,19 +12,18 @@
 
 #define CUBE_MAP_TEXTURE "cube_map_tex"
 
-//#define DIFFUSE_TEXTURE_SLOT GL_TEXTURE0
-//#define SPECULAR_TEXTURE_SLOT GL_TEXTURE1
-//#define NORMAL_TEXTURE_SLOT GL_TEXTURE2
-
 static GLuint constShaderProgram(const char *vertFile, const char *fragFile) {
   REQUIRE(vertFile != NULL);
   REQUIRE(fragFile != NULL);
 
-  REQUIRE(g_file_test(vertFile, G_FILE_TEST_EXISTS));
-  REQUIRE(g_file_test(fragFile, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(vertFile, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(fragFile, G_FILE_TEST_EXISTS));
 
-  const char *vertexShader = readFile(vertFile);
-  const char *fragmentShader = readFile(fragFile);
+  REQUIRE(fileExist(vertFile));
+  REQUIRE(fileExist(fragFile));
+
+  const char *vertexShader = fileReadContents(vertFile);
+  const char *fragmentShader = fileReadContents(fragFile);
 
   REQUIRE(vertexShader != NULL);
   REQUIRE(fragmentShader != NULL);
@@ -42,8 +41,11 @@ struct Shader *shaderNew(const char *vertexShader, const char *fragmentShader) {
   REQUIRE(vertexShader != NULL);
   REQUIRE(fragmentShader != NULL);
 
-  REQUIRE(g_file_test(vertexShader, G_FILE_TEST_EXISTS));
-  REQUIRE(g_file_test(fragmentShader, G_FILE_TEST_EXISTS));
+  //  REQUIRE(g_file_test(vertexShader, G_FILE_TEST_EXISTS));
+  //  REQUIRE(g_file_test(fragmentShader, G_FILE_TEST_EXISTS));
+
+  REQUIRE(fileExist(vertexShader));
+  REQUIRE(fileExist(fragmentShader));
 
   struct Shader *re =
       DEFENSE_MALLOC(sizeof(struct Shader), mallocFailAbort, NULL);
@@ -74,11 +76,6 @@ struct Shader *shaderNew(const char *vertexShader, const char *fragmentShader) {
   re->normalTexLoc = generateTexLoc(&re->shaderProgram, NORMAL_TEXTURE);
   re->cubeMapTexLoc = generateTexLoc(&re->shaderProgram, CUBE_MAP_TEXTURE);
 
-  ENSURE(re->diffTexLoc != 0);
-  ENSURE(re->specTexLoc != 0);
-  ENSURE(re->normalTexLoc != 0);
-  ENSURE(re->cubeMapTexLoc != 0);
-
   return re;
 }
 
@@ -96,64 +93,65 @@ void shaderFree(struct Shader *shader) {
   DEFENSE_FREE(shader);
 }
 
-gboolean shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
-                                 GLenum textureSlot) {
+bool shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
+                             GLenum textureSlot) {
   REQUIRE(textureFile != NULL);
-  REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
+  REQUIRE(fileExist(textureFile));
 
   REQUIRE(shader->diffTex != 0);
-  // REQUIRE(model->diffTexLoc != 0);
 
   if (loadTexture(textureFile, &shader->shaderProgram, textureSlot,
                   &shader->diffTex, &shader->diffTexLoc) != 1) {
     printf("failed to load texture: %s\n", textureFile);
-    return FALSE;
+    return false;
   } else {
     shader->diffTexFile = textureFile;
-    return TRUE;
+    return true;
   }
 }
 
-gboolean shaderSetSpecularTexture(struct Shader *shader, char *textureFile,
-                                  GLenum textureSlot) {
+bool shaderSetSpecularTexture(struct Shader *shader, char *textureFile,
+                              GLenum textureSlot) {
   REQUIRE(textureFile != NULL);
-  REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
+  REQUIRE(fileExist(textureFile));
 
   REQUIRE(shader->specTex != 0);
-  REQUIRE(shader->specTexLoc != 0);
+  // REQUIRE(shader->specTexLoc != 0);
 
   if (loadTexture(textureFile, &shader->shaderProgram, textureSlot,
                   &shader->specTex, &shader->specTexLoc) != 1) {
     printf("failed to load texture: %s\n", textureFile);
-    return FALSE;
+    return false;
   } else {
     shader->specTexFile = textureFile;
-    return TRUE;
+    return true;
   }
 }
 
-gboolean shaderSetNormalTexture(struct Shader *shader, char *textureFile,
-                                GLenum textureSlot) {
+bool shaderSetNormalTexture(struct Shader *shader, char *textureFile,
+                            GLenum textureSlot) {
   REQUIRE(textureFile != NULL);
-  REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(textureFile, G_FILE_TEST_EXISTS));
+  REQUIRE(fileExist(textureFile));
 
   REQUIRE(shader->normalTex != 0);
-  REQUIRE(shader->normalTexLoc != 0);
+  // REQUIRE(shader->normalTexLoc != 0);
 
   if (loadTexture(textureFile, &shader->shaderProgram, textureSlot,
                   &shader->normalTex, &shader->normalTexLoc) != 1) {
     printf("failed to load texture: %s\n", textureFile);
-    return FALSE;
+    return false;
   } else {
     shader->normalTexFile = textureFile;
-    return TRUE;
+    return true;
   }
 }
 
-gboolean shaderSetCubeMap(struct Shader *shader, const char *front,
-                          const char *back, const char *top, const char *bottom,
-                          const char *right, const char *left,
-                          GLenum textureSlot) {
+bool shaderSetCubeMap(struct Shader *shader, const char *front,
+                      const char *back, const char *top, const char *bottom,
+                      const char *right, const char *left, GLenum textureSlot) {
   REQUIRE(front != NULL);
   REQUIRE(back != NULL);
   REQUIRE(top != NULL);
@@ -161,12 +159,19 @@ gboolean shaderSetCubeMap(struct Shader *shader, const char *front,
   REQUIRE(right != NULL);
   REQUIRE(left != NULL);
 
-  REQUIRE(g_file_test(front, G_FILE_TEST_EXISTS));
-  REQUIRE(g_file_test(back, G_FILE_TEST_EXISTS));
-  REQUIRE(g_file_test(top, G_FILE_TEST_EXISTS));
-  REQUIRE(g_file_test(bottom, G_FILE_TEST_EXISTS));
-  REQUIRE(g_file_test(right, G_FILE_TEST_EXISTS));
-  REQUIRE(g_file_test(left, G_FILE_TEST_EXISTS));
+  REQUIRE(fileExist(front));
+  REQUIRE(fileExist(back));
+  REQUIRE(fileExist(top));
+  REQUIRE(fileExist(bottom));
+  REQUIRE(fileExist(right));
+  REQUIRE(fileExist(left));
+
+  // REQUIRE(g_file_test(front, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(back, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(top, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(bottom, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(right, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(left, G_FILE_TEST_EXISTS));
 
   REQUIRE(shader->cubeMapTex != 0);
 
@@ -174,7 +179,7 @@ gboolean shaderSetCubeMap(struct Shader *shader, const char *front,
                     &shader->shaderProgram, textureSlot, &shader->cubeMapTex,
                     &shader->cubeMapTexLoc) != 1) {
     printf("failed to load cube map\n");
-    return FALSE;
+    return false;
   } else {
     shader->cubeMapFile[0] = front;
     shader->cubeMapFile[1] = back;
@@ -183,6 +188,6 @@ gboolean shaderSetCubeMap(struct Shader *shader, const char *front,
     shader->cubeMapFile[4] = right;
     shader->cubeMapFile[5] = left;
 
-    return TRUE;
+    return true;
   }
 }

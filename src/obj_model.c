@@ -44,7 +44,8 @@ struct ObjModel *objModelNew(const char *objFile, struct Shader *shader) {
   //  REQUIRE(vertexShader != NULL);
   //  REQUIRE(fragmentShader != NULL);
 
-  REQUIRE(g_file_test(objFile, G_FILE_TEST_EXISTS));
+  // REQUIRE(g_file_test(objFile, G_FILE_TEST_EXISTS));
+  REQUIRE(fileExist(objFile));
   //  REQUIRE(g_file_test(vertexShader, G_FILE_TEST_EXISTS));
   //  REQUIRE(g_file_test(fragmentShader, G_FILE_TEST_EXISTS));
 

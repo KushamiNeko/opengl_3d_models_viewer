@@ -1,4 +1,4 @@
-#version 410
+#version 450
 
 in vec2 texture_coordinates;
 
@@ -18,6 +18,51 @@ uniform sampler2D spec_tex;
 uniform sampler2D normal_tex;
 
 uniform samplerCube cube_map_tex;
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+const float PI = 3.14159265358979323846;
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+vec2 Hammersley(uint i, uint N) {
+  return vec2(float(i) / float(N),
+              float(bitfieldReverse(i)) * 2.3283064365386963e-10);
+}
+
+vec3 hemisphereSample_uniform(float u, float v) {
+  float phi = v * 2.0 * PI;
+  float cosTheta = 1.0 - u;
+  float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+  return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+}
+
+vec3 hemisphereSample_cos(float u, float v) {
+  float phi = v * 2.0 * PI;
+  float cosTheta = sqrt(1.0 - u);
+  float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+  return vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+}
+
+vec3 hemisphereSample_cos2(float u1, float u2) {
+  float r = sqrt(u1);
+  float theta = 2 * PI * u2;
+
+  float x = r * cos(theta);
+  float y = r * sin(theta);
+
+  return vec3(x, y, sqrt(max(0.0f, 1 - u1)));
+}
+
+vec3 MakeSample(vec2 E) {
+  float SineTheta = sin(E.x);
+
+  float x = cos(E.y) * SineTheta;
+  float y = sin(E.y) * SineTheta;
+  float z = cos(E.x);
+
+  return vec3(x, y, z);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,8 +103,6 @@ vec3 Fresnel_BRDF(vec3 L, vec3 V, vec3 N) {
 }
 
 float alpha = 0.1;
-
-const float PI = 3.14159265358979323846;
 
 float sqr(float x) { return x * x; }
 
@@ -157,6 +200,7 @@ void main() {
   reflected = vec3(inverse(view_mat) * vec4(reflected, 0.0));
 
   vec3 cube_map_texel = texture(cube_map_tex, reflected).xyz;
+  // vec3 cube_map_texel = textureLod(cube_map_tex, reflected, 10).xyz;
 
   vec3 cube_map_texel_light = cube_map_texel * 1.5;
 
@@ -168,4 +212,21 @@ void main() {
 
   final_color = vec4(mix(ld, ls, clamp(fresnel, 0.0, 1.0)), 1.0);
   // final_color = vec4(ls, 1.0);
+
+  //  uint numSamples = 32;
+  //  vec3 c = vec3(0.0);
+  //  for (uint i = 0; i < numSamples; i++) {
+  //    vec2 samplePos = Hammersley(i, numSamples);
+  //    vec3 hemiVec_tangent = hemisphereSample_cos2(samplePos.x, samplePos.y);
+  //
+  //    vec3 hemiVec_world = t * hemiVec_tangent;
+  //
+  //    vec4 ne = view_mat * vec4(normal, 0.0);
+  //    vec3 re = reflect(n_pos_eye, ne.xyz);
+  //
+  //    // vec3 makeSample = MakeSample(samplePos);
+  //    c += texture(cube_map_tex, re).xyz;
+  //  }
+
+  // final_color = vec4(c / numSamples, 1.0);
 }

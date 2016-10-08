@@ -1,7 +1,7 @@
 #ifndef OBJ_MODEL_H
 #define OBJ_MODEL_H
 
-#include <glib-2.0/glib.h>
+//#include <glib-2.0/glib.h>
 
 //#include "obj_parser.h"
 #include "shader.h"

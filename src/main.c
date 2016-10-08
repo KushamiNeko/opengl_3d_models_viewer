@@ -48,6 +48,9 @@
 #define STANDARD_SHADER_VERTEX "src/shader/reflective.vert"
 #define STANDARD_SHADER_FRAGMENT "src/shader/reflective.frag"
 
+//#define STANDARD_SHADER_VERTEX "src/shader/reference_shader.vert"
+//#define STANDARD_SHADER_FRAGMENT "src/shader/reference_shader.frag"
+
 //#define TEST_MODEL "geo/monkey/test.obj"
 
 //#define TEST_MODEL "geo/05.obj"
@@ -158,6 +161,159 @@ return_ture:
   return TRUE;
 }
 
+static char *modelFile = NULL;
+static char *diffuseFile = NULL;
+static char *reflectFile = NULL;
+static char *normalFile = NULL;
+
+// static bool drawSelect = false;
+
+static void fileDropCallBack(GLFWwindow *window, int numFiles,
+                             const char **filePath) {
+  if (numFiles > 1) {
+    printf("Only accept one file at a time\n");
+    return;
+  }
+
+  double x, y;
+
+  glfwGetCursorPos(window, &x, &y);
+
+  // struct nk_panel layout;
+
+  //  if (nk_begin(ctx, &layout, "Shader Control", nk_rect(400, 400, 500, 850),
+  //               NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
+  //                   NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
+  // nk_layout_row_static(ctx, 30, 80, 1);
+
+  printf("drop in\n");
+  // drawSelect = true;
+
+  //  struct nk_font_atlas *atlas;
+  //
+  //  nk_glfw3_font_stash_begin(&atlas);
+  //
+  //  struct nk_font *droid = nk_font_atlas_add_from_file(
+  //      atlas, "/usr/share/fonts/liberation/LiberationSans-Regular.ttf", 16,
+  //      0);
+  //
+  //  nk_glfw3_font_stash_end();
+  //
+  //  // nk_style_load_all_cursors(ctx, atlas->cursors);
+  //
+  //  struct nk_context ctx;
+  //  nk_init_fixed(&ctx, calloc(1, 100000), 100000, &droid);
+  //
+  //  nk_style_set_font(&ctx, &droid->handle);
+  //
+  //  //  enum { EASY, HARD };
+  //  //  int op = EASY;
+  //  //  float value = 0.6f;
+  //  //  int i = 20;
+  //
+  //  struct nk_panel layout;
+  //  if (nk_begin(&ctx, &layout, "Show", nk_rect(400, 400, 600, 600),
+  //               NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_CLOSABLE)) {
+  //    /* fixed widget pixel width */
+  //    nk_layout_row_static(&ctx, 30, 80, 1);
+  //    if (nk_button_label(&ctx, "button")) {
+  //      /* event handling */
+  //    }
+  //
+  //    /* fixed widget window ratio width */
+  //    //    nk_layout_row_dynamic(&ctx, 30, 2);
+  //    //    if (nk_option_label(&ctx, "easy", op == EASY)) op = EASY;
+  //    //    if (nk_option_label(&ctx, "hard", op == HARD)) op = HARD;
+  //    //
+  //    //    /* custom widget pixel width */
+  //    //    nk_layout_row_begin(&ctx, NK_STATIC, 30, 2);
+  //    //    {
+  //    //      nk_layout_row_push(&ctx, 50);
+  //    //      nk_label(&ctx, "Volume:", NK_TEXT_LEFT);
+  //    //      nk_layout_row_push(&ctx, 110);
+  //    //      nk_slider_float(&ctx, 0, &value, 1.0f, 0.1f);
+  //    //    }
+  //    //    nk_layout_row_end(&ctx);
+  //  }
+  //  nk_end(&ctx);
+
+  //  nk_rect(400, 400, 500, 850);
+  //  nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER,
+  //  MAX_ELEMENT_BUFFER);
+
+  //    nk_layout_row_dynamic(ctx, 30, 1);
+  //
+  //    // nk_label(ctx, "OBJ Model: ", NK_TEXT_LEFT);
+  //    // nk_label(ctx, modelFile, NK_TEXT_CENTERED);
+  //
+  //    if (nk_button_label(ctx, modelFile == NULL ? "sphere.obj" : modelFile))
+  //    {
+  //      printf("Model pressed\n");
+  //
+  //      // modelFile = "hello";
+  //    }
+  //
+  //    // nk_layout_row_dynamic(ctx, 30, 1);
+  //
+  //    // nk_label(ctx, "Diffuse Map: ", NK_TEXT_LEFT);
+  //    // nk_label(ctx, diffuseFile, NK_TEXT_CENTERED);
+  //
+  //    if (nk_button_label(ctx, diffuseFile == NULL ? "01.jpg" : diffuseFile))
+  //    {
+  //      printf("Diffuse Map pressed\n");
+  //      diffuseFile = "hello";
+  //    }
+  //
+  //    // nk_label(ctx, "Reflection Map: ", NK_TEXT_LEFT);
+  //    // nk_label(ctx, reflectFile, NK_TEXT_CENTERED);
+  //
+  //    if (nk_button_label(ctx, reflectFile == NULL ? "01.jpg" : reflectFile))
+  //    {
+  //      printf("Reflection Map pressed\n");
+  //      reflectFile = "hello";
+  //    }
+  //
+  //    // nk_label(ctx, "Normal Map: ", NK_TEXT_LEFT);
+  //    // nk_label(ctx, normalFile, NK_TEXT_CENTERED);
+  //
+  //    if (nk_button_label(ctx, normalFile == NULL ? "01.jpg" : normalFile)) {
+  //      printf("Normal Map pressed\n");
+  //      normalFile = "hello";
+  //    }
+  //  }
+  //
+  //  nk_end(ctx);
+
+  //  if (x > 20 && x < 250 && y > 80 && y < 110) {
+  //    free(modelFile);
+  //
+  //    printf("model file: %s\n", filePath[0]);
+  //    modelFile = pathGetBase(filePath[0]);
+  //    return;
+  //
+  //  } else if (x > 20 && x < 250 && y > 170 && y < 200) {
+  //    free(diffuseFile);
+  //
+  //    printf("diffuse map: %s\n", filePath[0]);
+  //    diffuseFile = pathGetBase(filePath[0]);
+  //    return;
+  //  } else if (x > 20 && x < 250 && y > 260 && y < 290) {
+  //    free(reflectFile);
+  //
+  //    printf("reflection map: %s\n", filePath[0]);
+  //    reflectFile = pathGetBase(filePath[0]);
+  //    return;
+  //  } else if (x > 20 && x < 250 && y > 350 && y < 380) {
+  //    free(normalFile);
+  //
+  //    printf("normal map: %s\n", filePath[0]);
+  //    normalFile = pathGetBase(filePath[0]);
+  //    return;
+  //  }
+
+  // printf("file path: %s\n", filePath[0]);
+}
+
 int main(int argc, char const *argv[]) {
   // register the error call back function
   glfwSetErrorCallback(glfwErrorCallback);
@@ -170,7 +326,7 @@ int main(int argc, char const *argv[]) {
 
   // request opengl 4.3 in mesa
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -181,6 +337,16 @@ int main(int argc, char const *argv[]) {
   GLFWwindow *window = glfwCreateWindow(glfwWindowWidth, glfwWindowHeight,
                                         "OpenGL Model Viewer", NULL, NULL);
 
+  if (!window) {
+    printf("ERROR: Could not create the GL window with GLFW3\n");
+    glfwTerminate();
+    return 1;
+  }
+
+  glfwSetWindowSizeCallback(window, glfwWindowSizeCallback);
+
+  glfwSetDropCallback(window, fileDropCallBack);
+
   // get information about the primary monitor
   GLFWmonitor *mon = glfwGetPrimaryMonitor();
   const GLFWvidmode *vmode = glfwGetVideoMode(mon);
@@ -188,13 +354,6 @@ int main(int argc, char const *argv[]) {
   // set window position to the center of the monitor
   glfwSetWindowPos(window, (vmode->width / 2) - (glfwWindowWidth / 2),
                    (vmode->height / 2) - (glfwWindowHeight / 2));
-
-  glfwSetWindowSizeCallback(window, glfwWindowSizeCallback);
-  if (!window) {
-    printf("ERROR: Could not create the GL window with GLFW3\n");
-    glfwTerminate();
-    return 1;
-  }
 
   glfwMakeContextCurrent(window);
 
@@ -222,6 +381,11 @@ int main(int argc, char const *argv[]) {
 
   struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
 
+  //  struct nk_context *ctxSelect =
+  //      nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
+
+  // ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
+
   struct nk_font_atlas *atlas;
 
   nk_glfw3_font_stash_begin(&atlas);
@@ -236,7 +400,11 @@ int main(int argc, char const *argv[]) {
 
   struct nk_color background = nk_rgb(28, 48, 62);
 
-  // MAIN OPENGL PROGRAM--------------------------------------------------------
+  // MAIN OPENGL
+  // PROGRAM--------------------------------------------------------
+
+  // IMPORT MODEL AND CREATE
+  // SHADER-------------------------------------------------------------------------
 
   struct Shader *modelShader =
       shaderNew(STANDARD_SHADER_VERTEX, STANDARD_SHADER_FRAGMENT);
@@ -250,6 +418,9 @@ int main(int argc, char const *argv[]) {
   shaderSetNormalTexture(modelShader, TEST_MODEL_NORMAL, GL_TEXTURE8);
 
   struct ObjModel *model = objModelNew(TEST_MODEL, modelShader);
+
+  // IMPORT MODEL AND CREATE
+  // SHADER-------------------------------------------------------------------------
 
   float cam_speed = 1.0f;
 
@@ -343,39 +514,36 @@ int main(int argc, char const *argv[]) {
       nk_layout_row_dynamic(ctx, 30, 1);
 
       nk_label(ctx, "OBJ Model: ", NK_TEXT_LEFT);
-      static char *modelFile = "sphere.obj";
-      nk_label(ctx, modelFile, NK_TEXT_CENTERED);
+      // nk_label(ctx, modelFile, NK_TEXT_CENTERED);
 
-      if (nk_button_label(ctx, "Model")) {
+      if (nk_button_label(ctx, modelFile == NULL ? "sphere.obj" : modelFile)) {
         printf("Model pressed\n");
-        modelFile = "hello";
+
+        // modelFile = "hello";
       }
 
       // nk_layout_row_dynamic(ctx, 30, 1);
 
       nk_label(ctx, "Diffuse Map: ", NK_TEXT_LEFT);
-      static char *diffuseFile = "01.jpg";
-      nk_label(ctx, diffuseFile, NK_TEXT_CENTERED);
+      // nk_label(ctx, diffuseFile, NK_TEXT_CENTERED);
 
-      if (nk_button_label(ctx, "Diffuse Map")) {
+      if (nk_button_label(ctx, diffuseFile == NULL ? "01.jpg" : diffuseFile)) {
         printf("Diffuse Map pressed\n");
         diffuseFile = "hello";
       }
 
       nk_label(ctx, "Reflection Map: ", NK_TEXT_LEFT);
-      static char *reflectFile = "01.jpg";
-      nk_label(ctx, reflectFile, NK_TEXT_CENTERED);
+      // nk_label(ctx, reflectFile, NK_TEXT_CENTERED);
 
-      if (nk_button_label(ctx, "Reflection Map")) {
+      if (nk_button_label(ctx, reflectFile == NULL ? "01.jpg" : reflectFile)) {
         printf("Reflection Map pressed\n");
         reflectFile = "hello";
       }
 
       nk_label(ctx, "Normal Map: ", NK_TEXT_LEFT);
-      static char *normalFile = "01.jpg";
-      nk_label(ctx, normalFile, NK_TEXT_CENTERED);
+      // nk_label(ctx, normalFile, NK_TEXT_CENTERED);
 
-      if (nk_button_label(ctx, "Normal Map")) {
+      if (nk_button_label(ctx, normalFile == NULL ? "01.jpg" : normalFile)) {
         printf("Normal Map pressed\n");
         normalFile = "hello";
       }
@@ -417,9 +585,38 @@ int main(int argc, char const *argv[]) {
       static int glossiness = 20;
       nk_layout_row_dynamic(ctx, 25, 1);
       nk_property_int(ctx, "Glossiness:", 0, &glossiness, 100, 10, 1);
+
+      //      if (drawSelect) {
+      //        nk_rect(400, 400, 600, 600);
+      //      }
     }
 
     nk_end(ctx);
+
+    // nk_glfw3_new_frame();
+
+    //    struct nk_panel layout02;
+    //
+    //    if (nk_begin(ctx, &layout02, "Shader Control", nk_rect(400, 400, 600,
+    //    600),
+    //                 NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE))
+    //                 {
+    //      // nk_layout_row_static(ctx, 30, 80, 1);
+    //
+    //      nk_layout_row_dynamic(ctx, 30, 1);
+    //
+    //      nk_label(ctx, "OBJ Model: ", NK_TEXT_LEFT);
+    //      // nk_label(ctx, modelFile, NK_TEXT_CENTERED);
+    //
+    //      if (nk_button_label(ctx, modelFile == NULL ? "sphere.obj" :
+    //      modelFile)) {
+    //        printf("Model pressed\n");
+    //
+    //        // modelFile = "hello";
+    //      }
+    //    }
+    //
+    //    nk_end(ctx);
 
     // NUKLEAR UI--------------------------------------------------------
 
@@ -439,6 +636,11 @@ int main(int argc, char const *argv[]) {
     glViewport(0, 0, glfwWindowWidth, glfwWindowHeight);
 
     glUseProgram(modelShader->shaderProgram);
+
+    //    glBindTexture(GL_TEXTURE_CUBE_MAP, modelShader->cubeMapTex);
+    //    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_LOD, 1);
+    //    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LOD, 9);
+
     glBindVertexArray(model->VAO);
     glDrawArrays(GL_TRIANGLES, 0, model->model->point_counts);
 
@@ -448,6 +650,36 @@ int main(int argc, char const *argv[]) {
     // NUKLEAR UI--------------------------------------------------------
 
     nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+
+    //    if (drawSelect) {
+    //      struct nk_panel layout02;
+    //
+    //      if (nk_begin(ctx, &layout02, "Shader Control",
+    //                   nk_rect(400, 400, 600, 600),
+    //                   NK_WINDOW_BORDER | NK_WINDOW_MOVABLE |
+    //                   NK_WINDOW_SCALABLE |
+    //                       NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
+    //        // nk_layout_row_static(ctx, 30, 80, 1);
+    //
+    //        // nk_layout_row_dynamic(ctxSelect, 30, 1);
+    //
+    //        // nk_label(ctxSelect, "OBJ Model: ", NK_TEXT_LEFT);
+    //        //// nk_label(ctx, modelFile, NK_TEXT_CENTERED);
+    //
+    //        // if (nk_button_label(ctxSelect,
+    //        //                    modelFile == NULL ? "sphere.obj" :
+    //        modelFile)) {
+    //        //  printf("Model pressed\n");
+    //
+    //        //  // modelFile = "hello";
+    //        //}
+    //      }
+    //
+    //      nk_end(ctx);
+    //    }
+    //
+    //    nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER,
+    //    MAX_ELEMENT_BUFFER);
 
     // NUKLEAR UI--------------------------------------------------------
 

@@ -1,12 +1,14 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <glib-2.0/glib.h>
+//#include <glib-2.0/glib.h>
 
-//#include "obj_parser.h"
+#include <stdbool.h>
 
 #include "../../general/src/general_helper.h"
 #include "../../general/src/gl_helper.h"
+
+#include "../../general/src/debug_macro.h"
 
 struct Shader {
   GLuint shaderProgram;
@@ -32,21 +34,17 @@ struct Shader *shaderNew(const char *vertexShader, const char *fragmentShader);
 
 void shaderFree(struct Shader *shader);
 
-// void objModelLoadTextureMap(struct ObjModel *model, char *textureFile,
-//                            GLenum textureSlot, char *textureName);
+bool shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
+                             GLenum textureSlot);
 
-gboolean shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
-                                 GLenum textureSlot);
+bool shaderSetSpecularTexture(struct Shader *shader, char *textureFile,
+                              GLenum textureSlot);
 
-gboolean shaderSetSpecularTexture(struct Shader *shader, char *textureFile,
-                                  GLenum textureSlot);
+bool shaderSetNormalTexture(struct Shader *shader, char *textureFile,
+                            GLenum textureSlot);
 
-gboolean shaderSetNormalTexture(struct Shader *shader, char *textureFile,
-                                GLenum textureSlot);
-
-gboolean shaderSetCubeMap(struct Shader *shader, const char *front,
-                          const char *back, const char *top, const char *bottom,
-                          const char *right, const char *left,
-                          GLenum textureSlot);
+bool shaderSetCubeMap(struct Shader *shader, const char *front,
+                      const char *back, const char *top, const char *bottom,
+                      const char *right, const char *left, GLenum textureSlot);
 
 #endif
