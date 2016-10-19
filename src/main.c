@@ -54,11 +54,17 @@
 //#define TEST_MODEL "geo/monkey/test.obj"
 
 //#define TEST_MODEL "geo/05.obj"
-#define TEST_MODEL "geo/05_01.obj"
+//#define TEST_MODEL "geo/05_01.obj"
+#define TEST_MODEL "geo/sphere_base_02.obj"
 //#define TEST_MODEL "geo/07.obj"
-#define TEST_MODEL_COLOR "geo/05_color.jpg"
-#define TEST_MODEL_SPEC "geo/05_reflect.jpg"
-#define TEST_MODEL_NORMAL "geo/05_normalbump.jpg"
+//
+//#define TEST_MODEL_COLOR "geo/05_color.jpg"
+//#define TEST_MODEL_SPEC "geo/05_reflect.jpg"
+//#define TEST_MODEL_NORMAL "geo/05_normalbump.jpg"
+
+#define TEST_MODEL_COLOR "geo/uv_checker.png"
+#define TEST_MODEL_SPEC "geo/uv_checker.png"
+#define TEST_MODEL_NORMAL "geo/rocky_tile_nor.png"
 
 #define TEST_CUBE_MAP_NEG_Z "cube_map/Yokohama/negz.jpg"
 #define TEST_CUBE_MAP_POS_Z "cube_map/Yokohama/posz.jpg"
@@ -66,6 +72,8 @@
 #define TEST_CUBE_MAP_POS_Y "cube_map/Yokohama/posy.jpg"
 #define TEST_CUBE_MAP_NEG_X "cube_map/Yokohama/negx.jpg"
 #define TEST_CUBE_MAP_POS_X "cube_map/Yokohama/posx.jpg"
+
+#define SEPARATOR "---------------------------------------------"
 
 static int glfwWindowWidth = 1600;
 static int glfwWindowHeight = 900;
@@ -166,7 +174,18 @@ static char *diffuseFile = NULL;
 static char *reflectFile = NULL;
 static char *normalFile = NULL;
 
-// static bool drawSelect = false;
+static struct Shader *modelShader = NULL;
+static struct ObjModel *model = NULL;
+
+static struct nk_color diffuseColor;
+static struct nk_color reflectionColor;
+// static float reflectionColor[3] = {1.0f, 1.0f, 1.0f};
+
+static int useDiffuseMap = 0;
+static int useReflectionMap = 0;
+static int useNormalMap = 0;
+
+static float normalIntensity = 0.0f;
 
 static void fileDropCallBack(GLFWwindow *window, int numFiles,
                              const char **filePath) {
@@ -179,137 +198,47 @@ static void fileDropCallBack(GLFWwindow *window, int numFiles,
 
   glfwGetCursorPos(window, &x, &y);
 
-  // struct nk_panel layout;
+  if (x > 30 && x < 250) {
+    if (y > 92 && y < 122) {
+      free(modelFile);
 
-  //  if (nk_begin(ctx, &layout, "Shader Control", nk_rect(400, 400, 500, 850),
-  //               NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
-  //                   NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
-  // nk_layout_row_static(ctx, 30, 80, 1);
+      printf("model file: %s\n", filePath[0]);
+      modelFile = pathGetBase(filePath[0]);
 
-  printf("drop in\n");
-  // drawSelect = true;
+      objModelFree(model);
+      model = objModelNew((char *)filePath[0], modelShader);
 
-  //  struct nk_font_atlas *atlas;
-  //
-  //  nk_glfw3_font_stash_begin(&atlas);
-  //
-  //  struct nk_font *droid = nk_font_atlas_add_from_file(
-  //      atlas, "/usr/share/fonts/liberation/LiberationSans-Regular.ttf", 16,
-  //      0);
-  //
-  //  nk_glfw3_font_stash_end();
-  //
-  //  // nk_style_load_all_cursors(ctx, atlas->cursors);
-  //
-  //  struct nk_context ctx;
-  //  nk_init_fixed(&ctx, calloc(1, 100000), 100000, &droid);
-  //
-  //  nk_style_set_font(&ctx, &droid->handle);
-  //
-  //  //  enum { EASY, HARD };
-  //  //  int op = EASY;
-  //  //  float value = 0.6f;
-  //  //  int i = 20;
-  //
-  //  struct nk_panel layout;
-  //  if (nk_begin(&ctx, &layout, "Show", nk_rect(400, 400, 600, 600),
-  //               NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_CLOSABLE)) {
-  //    /* fixed widget pixel width */
-  //    nk_layout_row_static(&ctx, 30, 80, 1);
-  //    if (nk_button_label(&ctx, "button")) {
-  //      /* event handling */
-  //    }
-  //
-  //    /* fixed widget window ratio width */
-  //    //    nk_layout_row_dynamic(&ctx, 30, 2);
-  //    //    if (nk_option_label(&ctx, "easy", op == EASY)) op = EASY;
-  //    //    if (nk_option_label(&ctx, "hard", op == HARD)) op = HARD;
-  //    //
-  //    //    /* custom widget pixel width */
-  //    //    nk_layout_row_begin(&ctx, NK_STATIC, 30, 2);
-  //    //    {
-  //    //      nk_layout_row_push(&ctx, 50);
-  //    //      nk_label(&ctx, "Volume:", NK_TEXT_LEFT);
-  //    //      nk_layout_row_push(&ctx, 110);
-  //    //      nk_slider_float(&ctx, 0, &value, 1.0f, 0.1f);
-  //    //    }
-  //    //    nk_layout_row_end(&ctx);
-  //  }
-  //  nk_end(&ctx);
+      return;
 
-  //  nk_rect(400, 400, 500, 850);
-  //  nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER,
-  //  MAX_ELEMENT_BUFFER);
+    } else if (y > 296 && y < 326 && useDiffuseMap) {
+      free(diffuseFile);
 
-  //    nk_layout_row_dynamic(ctx, 30, 1);
-  //
-  //    // nk_label(ctx, "OBJ Model: ", NK_TEXT_LEFT);
-  //    // nk_label(ctx, modelFile, NK_TEXT_CENTERED);
-  //
-  //    if (nk_button_label(ctx, modelFile == NULL ? "sphere.obj" : modelFile))
-  //    {
-  //      printf("Model pressed\n");
-  //
-  //      // modelFile = "hello";
-  //    }
-  //
-  //    // nk_layout_row_dynamic(ctx, 30, 1);
-  //
-  //    // nk_label(ctx, "Diffuse Map: ", NK_TEXT_LEFT);
-  //    // nk_label(ctx, diffuseFile, NK_TEXT_CENTERED);
-  //
-  //    if (nk_button_label(ctx, diffuseFile == NULL ? "01.jpg" : diffuseFile))
-  //    {
-  //      printf("Diffuse Map pressed\n");
-  //      diffuseFile = "hello";
-  //    }
-  //
-  //    // nk_label(ctx, "Reflection Map: ", NK_TEXT_LEFT);
-  //    // nk_label(ctx, reflectFile, NK_TEXT_CENTERED);
-  //
-  //    if (nk_button_label(ctx, reflectFile == NULL ? "01.jpg" : reflectFile))
-  //    {
-  //      printf("Reflection Map pressed\n");
-  //      reflectFile = "hello";
-  //    }
-  //
-  //    // nk_label(ctx, "Normal Map: ", NK_TEXT_LEFT);
-  //    // nk_label(ctx, normalFile, NK_TEXT_CENTERED);
-  //
-  //    if (nk_button_label(ctx, normalFile == NULL ? "01.jpg" : normalFile)) {
-  //      printf("Normal Map pressed\n");
-  //      normalFile = "hello";
-  //    }
-  //  }
-  //
-  //  nk_end(ctx);
+      printf("diffuse map: %s\n", filePath[0]);
+      diffuseFile = pathGetBase(filePath[0]);
 
-  //  if (x > 20 && x < 250 && y > 80 && y < 110) {
-  //    free(modelFile);
-  //
-  //    printf("model file: %s\n", filePath[0]);
-  //    modelFile = pathGetBase(filePath[0]);
-  //    return;
-  //
-  //  } else if (x > 20 && x < 250 && y > 170 && y < 200) {
-  //    free(diffuseFile);
-  //
-  //    printf("diffuse map: %s\n", filePath[0]);
-  //    diffuseFile = pathGetBase(filePath[0]);
-  //    return;
-  //  } else if (x > 20 && x < 250 && y > 260 && y < 290) {
-  //    free(reflectFile);
-  //
-  //    printf("reflection map: %s\n", filePath[0]);
-  //    reflectFile = pathGetBase(filePath[0]);
-  //    return;
-  //  } else if (x > 20 && x < 250 && y > 350 && y < 380) {
-  //    free(normalFile);
-  //
-  //    printf("normal map: %s\n", filePath[0]);
-  //    normalFile = pathGetBase(filePath[0]);
-  //    return;
-  //  }
+      shaderSetDiffuseTexture(modelShader, (char *)filePath[0], GL_TEXTURE6);
+
+      return;
+    } else if (y > 500 && y < 530 && useReflectionMap) {
+      free(reflectFile);
+
+      printf("reflection map: %s\n", filePath[0]);
+      reflectFile = pathGetBase(filePath[0]);
+
+      shaderSetSpecularTexture(modelShader, (char *)filePath[0], GL_TEXTURE7);
+
+      return;
+    } else if (y > 636 && y < 666 && useNormalMap) {
+      free(normalFile);
+
+      printf("normal map: %s\n", filePath[0]);
+      normalFile = pathGetBase(filePath[0]);
+
+      shaderSetNormalTexture(modelShader, (char *)filePath[0], GL_TEXTURE8);
+
+      return;
+    }
+  }
 
   // printf("file path: %s\n", filePath[0]);
 }
@@ -381,11 +310,6 @@ int main(int argc, char const *argv[]) {
 
   struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
 
-  //  struct nk_context *ctxSelect =
-  //      nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
-
-  // ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
-
   struct nk_font_atlas *atlas;
 
   nk_glfw3_font_stash_begin(&atlas);
@@ -398,7 +322,9 @@ int main(int argc, char const *argv[]) {
   // nk_style_load_all_cursors(ctx, atlas->cursors);
   nk_style_set_font(ctx, &droid->handle);
 
-  struct nk_color background = nk_rgb(28, 48, 62);
+  // diffuseColor = nk_rgb(255, 255, 255);
+  diffuseColor = nk_rgb(0, 0, 0);
+  reflectionColor = nk_rgb(255, 255, 255);
 
   // MAIN OPENGL
   // PROGRAM--------------------------------------------------------
@@ -406,8 +332,10 @@ int main(int argc, char const *argv[]) {
   // IMPORT MODEL AND CREATE
   // SHADER-------------------------------------------------------------------------
 
-  struct Shader *modelShader =
-      shaderNew(STANDARD_SHADER_VERTEX, STANDARD_SHADER_FRAGMENT);
+  // struct Shader *modelShader =
+  //    shaderNew(STANDARD_SHADER_VERTEX, STANDARD_SHADER_FRAGMENT);
+
+  modelShader = shaderNew(STANDARD_SHADER_VERTEX, STANDARD_SHADER_FRAGMENT);
 
   shaderSetCubeMap(modelShader, TEST_CUBE_MAP_NEG_Z, TEST_CUBE_MAP_POS_Z,
                    TEST_CUBE_MAP_POS_Y, TEST_CUBE_MAP_NEG_Y,
@@ -417,7 +345,8 @@ int main(int argc, char const *argv[]) {
   shaderSetSpecularTexture(modelShader, TEST_MODEL_SPEC, GL_TEXTURE7);
   shaderSetNormalTexture(modelShader, TEST_MODEL_NORMAL, GL_TEXTURE8);
 
-  struct ObjModel *model = objModelNew(TEST_MODEL, modelShader);
+  // struct ObjModel *model = objModelNew(TEST_MODEL, modelShader);
+  model = objModelNew(TEST_MODEL, modelShader);
 
   // IMPORT MODEL AND CREATE
   // SHADER-------------------------------------------------------------------------
@@ -509,114 +438,187 @@ int main(int argc, char const *argv[]) {
     if (nk_begin(ctx, &layout, "Shader Control", nk_rect(20, 20, 250, 850),
                  NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
                      NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
-      // nk_layout_row_static(ctx, 30, 80, 1);
-
       nk_layout_row_dynamic(ctx, 30, 1);
 
       nk_label(ctx, "OBJ Model: ", NK_TEXT_LEFT);
-      // nk_label(ctx, modelFile, NK_TEXT_CENTERED);
+
+      nk_layout_row_dynamic(ctx, 30, 1);
 
       if (nk_button_label(ctx, modelFile == NULL ? "sphere.obj" : modelFile)) {
         printf("Model pressed\n");
-
-        // modelFile = "hello";
       }
+
+      nk_label(ctx, SEPARATOR, NK_TEXT_LEFT);
 
       // nk_layout_row_dynamic(ctx, 30, 1);
 
-      nk_label(ctx, "Diffuse Map: ", NK_TEXT_LEFT);
-      // nk_label(ctx, diffuseFile, NK_TEXT_CENTERED);
+      nk_layout_row_dynamic(ctx, 30, 1);
+      nk_label(ctx, "Diffuse Color:", NK_TEXT_LEFT);
 
-      if (nk_button_label(ctx, diffuseFile == NULL ? "01.jpg" : diffuseFile)) {
-        printf("Diffuse Map pressed\n");
-        diffuseFile = "hello";
-      }
+      struct nk_panel diffuseColorCombo;
+      nk_layout_row_dynamic(ctx, 30, 1);
 
-      nk_label(ctx, "Reflection Map: ", NK_TEXT_LEFT);
-      // nk_label(ctx, reflectFile, NK_TEXT_CENTERED);
-
-      if (nk_button_label(ctx, reflectFile == NULL ? "01.jpg" : reflectFile)) {
-        printf("Reflection Map pressed\n");
-        reflectFile = "hello";
-      }
-
-      nk_label(ctx, "Normal Map: ", NK_TEXT_LEFT);
-      // nk_label(ctx, normalFile, NK_TEXT_CENTERED);
-
-      if (nk_button_label(ctx, normalFile == NULL ? "01.jpg" : normalFile)) {
-        printf("Normal Map pressed\n");
-        normalFile = "hello";
-      }
-
-      // nk_layout_row_dynamic(ctx, 30, 2);
-      // if (nk_option_label(ctx, "easy", op == EASY)) op = EASY;
-      // if (nk_option_label(ctx, "hard", op == HARD)) op = HARD;
-
-      struct nk_panel combo;
-      nk_layout_row_dynamic(ctx, 20, 1);
-
-      nk_label(ctx, "Reflection:", NK_TEXT_LEFT);
-
-      nk_layout_row_dynamic(ctx, 25, 1);
-
-      if (nk_combo_begin_color(ctx, &combo, background,
+      if (nk_combo_begin_color(ctx, &diffuseColorCombo, diffuseColor,
                                nk_vec2(nk_widget_width(ctx), 400))) {
         nk_layout_row_dynamic(ctx, 120, 1);
 
-        background = nk_color_picker(ctx, background, NK_RGBA);
+        diffuseColor = nk_color_picker(ctx, diffuseColor, NK_RGB);
 
-        nk_layout_row_dynamic(ctx, 25, 1);
+        nk_layout_row_dynamic(ctx, 30, 1);
 
-        background.r =
-            (nk_byte)nk_propertyi(ctx, "#R:", 0, background.r, 255, 1, 1);
+        diffuseColor.r =
+            (nk_byte)nk_propertyi(ctx, "#R:", 0, diffuseColor.r, 255, 1, 1);
 
-        background.g =
-            (nk_byte)nk_propertyi(ctx, "#G:", 0, background.g, 255, 1, 1);
+        diffuseColor.g =
+            (nk_byte)nk_propertyi(ctx, "#G:", 0, diffuseColor.g, 255, 1, 1);
 
-        background.b =
-            (nk_byte)nk_propertyi(ctx, "#B:", 0, background.b, 255, 1, 1);
-
-        background.a =
-            (nk_byte)nk_propertyi(ctx, "#A:", 0, background.a, 255, 1, 1);
+        diffuseColor.b =
+            (nk_byte)nk_propertyi(ctx, "#B:", 0, diffuseColor.b, 255, 1, 1);
 
         nk_combo_end(ctx);
+
+        shaderSetDiffuseColor(modelShader, (float)diffuseColor.r / 255.0f,
+                              (float)diffuseColor.g / 255.0f,
+                              (float)diffuseColor.b / 255.0f);
       }
 
-      static int glossiness = 20;
-      nk_layout_row_dynamic(ctx, 25, 1);
-      nk_property_int(ctx, "Glossiness:", 0, &glossiness, 100, 10, 1);
+      nk_layout_row_dynamic(ctx, 30, 1);
+      if (nk_checkbox_label(ctx, "Use Diffuse Map", &useDiffuseMap)) {
+        shaderSetUseDiffuseMap(modelShader, (int)useDiffuseMap);
+      }
 
-      //      if (drawSelect) {
-      //        nk_rect(400, 400, 600, 600);
+      nk_layout_row_dynamic(ctx, 30, 1);
+      nk_label(ctx, "Diffuse Map: ", NK_TEXT_LEFT);
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      if (nk_button_label(ctx, diffuseFile == NULL ? "EMPTY" : diffuseFile)) {
+        printf("Diffuse Map pressed\n");
+      }
+
+      nk_label(ctx, SEPARATOR, NK_TEXT_LEFT);
+
+      //      static int glossiness = 20;
+      //      nk_layout_row_dynamic(ctx, 25, 1);
+      //      nk_property_int(ctx, "Glossiness:", 0, &glossiness, 100, 10, 1);
+
+      // nk_layout_row_dynamic(ctx, 30, 1);
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      nk_label(ctx, "Reflection Color:", NK_TEXT_LEFT);
+
+      struct nk_panel reflectionColorCombo;
+      nk_layout_row_dynamic(ctx, 30, 1);
+
+      if (nk_combo_begin_color(ctx, &reflectionColorCombo, reflectionColor,
+                               nk_vec2(nk_widget_width(ctx), 400))) {
+        nk_layout_row_dynamic(ctx, 120, 1);
+
+        reflectionColor = nk_color_picker(ctx, reflectionColor, NK_RGB);
+
+        nk_layout_row_dynamic(ctx, 30, 1);
+
+        reflectionColor.r =
+            (int)nk_propertyi(ctx, "#R:", 0, reflectionColor.r, 255, 1, 1);
+
+        reflectionColor.g =
+            (int)nk_propertyi(ctx, "#G:", 0, reflectionColor.g, 255, 1, 1);
+
+        reflectionColor.b =
+            (int)nk_propertyi(ctx, "#B:", 0, reflectionColor.b, 255, 1, 1);
+
+        nk_combo_end(ctx);
+
+        shaderSetSpecularColor(modelShader, (float)reflectionColor.r / 255.0f,
+                               (float)reflectionColor.g / 255.0f,
+                               (float)reflectionColor.b / 255.0f);
+      }
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      if (nk_checkbox_label(ctx, "Use Reflection Map", &useReflectionMap)) {
+        shaderSetUseSpecularMap(modelShader, (int)useReflectionMap);
+      }
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      nk_label(ctx, "Reflection Map: ", NK_TEXT_LEFT);
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      if (nk_button_label(ctx, reflectFile == NULL ? "EMPTY" : reflectFile)) {
+        printf("Reflection Map pressed\n");
+      }
+
+      nk_label(ctx, SEPARATOR, NK_TEXT_LEFT);
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      if (nk_checkbox_label(ctx, "Use Normal Map", &useNormalMap)) {
+        shaderSetUseNormalMap(modelShader, (int)useNormalMap);
+      }
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      nk_label(ctx, "Normal Map: ", NK_TEXT_LEFT);
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      if (nk_button_label(ctx, normalFile == NULL ? "EMPTY" : normalFile)) {
+        printf("Normal Map pressed\n");
+      }
+
+      nk_layout_row_dynamic(ctx, 30, 1);
+      static char normalIntensityRe[28] = "Normal Map Intensity:  1.00";
+      nk_label(ctx, normalIntensityRe, NK_TEXT_LEFT);
+      if (nk_slider_float(ctx, 0, &normalIntensity, 2, 0.01)) {
+        sprintf(normalIntensityRe, "Normal Map Intensity:  %.2f",
+                normalIntensity);
+
+        shaderSetNormalIntensity(modelShader, normalIntensity);
+      }
+
+      // nk_label(ctx, normalIntensityRe, NK_TEXT_CENTERED);
+
+      //      struct nk_panel combo;
+      //      nk_layout_row_dynamic(ctx, 20, 1);
+      //
+      //      nk_label(ctx, "Reflection:", NK_TEXT_LEFT);
+      //
+      //      nk_layout_row_dynamic(ctx, 25, 1);
+      //
+      //      if (nk_combo_begin_color(ctx, &combo, background,
+      //                               nk_vec2(nk_widget_width(ctx), 400))) {
+      //        nk_layout_row_dynamic(ctx, 120, 1);
+      //
+      //        background = nk_color_picker(ctx, background, NK_RGBA);
+      //
+      //        nk_layout_row_dynamic(ctx, 25, 1);
+      //
+      //        background.r =
+      //            (nk_byte)nk_propertyi(ctx, "#R:", 0, background.r, 255, 1,
+      //            1);
+      //
+      //        background.g =
+      //            (nk_byte)nk_propertyi(ctx, "#G:", 0, background.g, 255, 1,
+      //            1);
+      //
+      //        background.b =
+      //            (nk_byte)nk_propertyi(ctx, "#B:", 0, background.b, 255, 1,
+      //            1);
+      //
+      //        background.a =
+      //            (nk_byte)nk_propertyi(ctx, "#A:", 0, background.a, 255, 1,
+      //            1);
+      //
+      //        nk_combo_end(ctx);
       //      }
+
+      //      static int glossiness = 20;
+      //      nk_layout_row_dynamic(ctx, 25, 1);
+      //      nk_property_int(ctx, "Glossiness:", 0, &glossiness, 100, 10, 1);
     }
 
     nk_end(ctx);
 
-    // nk_glfw3_new_frame();
-
-    //    struct nk_panel layout02;
+    //    double x, y;
+    //    glfwGetCursorPos(window, &x, &y);
     //
-    //    if (nk_begin(ctx, &layout02, "Shader Control", nk_rect(400, 400, 600,
-    //    600),
-    //                 NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE))
-    //                 {
-    //      // nk_layout_row_static(ctx, 30, 80, 1);
-    //
-    //      nk_layout_row_dynamic(ctx, 30, 1);
-    //
-    //      nk_label(ctx, "OBJ Model: ", NK_TEXT_LEFT);
-    //      // nk_label(ctx, modelFile, NK_TEXT_CENTERED);
-    //
-    //      if (nk_button_label(ctx, modelFile == NULL ? "sphere.obj" :
-    //      modelFile)) {
-    //        printf("Model pressed\n");
-    //
-    //        // modelFile = "hello";
-    //      }
-    //    }
-    //
-    //    nk_end(ctx);
+    //    printf("X: %f\n", x);
+    //    printf("Y: %f\n", y);
 
     // NUKLEAR UI--------------------------------------------------------
 
@@ -632,14 +634,11 @@ int main(int argc, char const *argv[]) {
 
     // clear the gl buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     // resize the gl viewport
     glViewport(0, 0, glfwWindowWidth, glfwWindowHeight);
 
     glUseProgram(modelShader->shaderProgram);
-
-    //    glBindTexture(GL_TEXTURE_CUBE_MAP, modelShader->cubeMapTex);
-    //    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_LOD, 1);
-    //    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LOD, 9);
 
     glBindVertexArray(model->VAO);
     glDrawArrays(GL_TRIANGLES, 0, model->model->point_counts);
@@ -650,36 +649,6 @@ int main(int argc, char const *argv[]) {
     // NUKLEAR UI--------------------------------------------------------
 
     nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
-
-    //    if (drawSelect) {
-    //      struct nk_panel layout02;
-    //
-    //      if (nk_begin(ctx, &layout02, "Shader Control",
-    //                   nk_rect(400, 400, 600, 600),
-    //                   NK_WINDOW_BORDER | NK_WINDOW_MOVABLE |
-    //                   NK_WINDOW_SCALABLE |
-    //                       NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE)) {
-    //        // nk_layout_row_static(ctx, 30, 80, 1);
-    //
-    //        // nk_layout_row_dynamic(ctxSelect, 30, 1);
-    //
-    //        // nk_label(ctxSelect, "OBJ Model: ", NK_TEXT_LEFT);
-    //        //// nk_label(ctx, modelFile, NK_TEXT_CENTERED);
-    //
-    //        // if (nk_button_label(ctxSelect,
-    //        //                    modelFile == NULL ? "sphere.obj" :
-    //        modelFile)) {
-    //        //  printf("Model pressed\n");
-    //
-    //        //  // modelFile = "hello";
-    //        //}
-    //      }
-    //
-    //      nk_end(ctx);
-    //    }
-    //
-    //    nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER,
-    //    MAX_ELEMENT_BUFFER);
 
     // NUKLEAR UI--------------------------------------------------------
 

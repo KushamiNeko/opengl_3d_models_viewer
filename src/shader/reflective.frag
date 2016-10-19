@@ -13,11 +13,24 @@ uniform mat4 view_mat, proj_mat;
 
 out vec4 final_color;
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
 uniform sampler2D diff_tex;
 uniform sampler2D spec_tex;
 uniform sampler2D normal_tex;
 
 uniform samplerCube cube_map_tex;
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+uniform int use_diffuse_map;
+uniform vec3 diff_color;
+
+uniform int use_specular_map;
+uniform vec3 spec_color;
+
+uniform int use_normal_map;
+uniform float normal_intensity;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -130,15 +143,33 @@ void main() {
   vec3 main_light_world = vec3(1.0, 2.0, 2.0);
 
   // float reflection_intensity = 0.8;
-  float normal_map_intensity = 1.0;
+  float normal_map_intensity = normal_intensity;
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   // get texture into texel
 
-  vec4 diff_texel = texture(diff_tex, texture_coordinates);
-  vec4 spec_texel = texture(spec_tex, texture_coordinates);
-  vec3 normal_texel = texture(normal_tex, texture_coordinates).xyz;
+  vec4 diff_texel;
+  vec4 spec_texel;
+  vec3 normal_texel;
+
+  if (use_diffuse_map == 1) {
+    diff_texel = texture(diff_tex, texture_coordinates);
+  } else {
+    diff_texel = vec4(diff_color, 1.0);
+  }
+
+  if (use_specular_map == 1) {
+    spec_texel = texture(spec_tex, texture_coordinates);
+  } else {
+    spec_texel = vec4(spec_color, 1.0);
+  }
+
+  normal_texel = texture(normal_tex, texture_coordinates).xyz;
+
+  // vec4 diff_texel = texture(diff_tex, texture_coordinates);
+  // vec4 spec_texel = texture(spec_tex, texture_coordinates);
+  // vec3 normal_texel = texture(normal_tex, texture_coordinates).xyz;
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -151,9 +182,17 @@ void main() {
 
   mat3 t = mat3(tangent.xyz, bi_tangent.xyz, normal.xyz);
 
-  vec3 normal_world = t * normal_texel;
-  vec3 normal_eye = vec3(view_mat * vec4(normal_world, 0.0));
-  vec3 n_normal_eye = normalize(normal_eye);
+  vec3 normal_texel_world = t * normal_texel;
+  vec3 normal_texel_eye = vec3(view_mat * vec4(normal_texel_world, 0.0));
+
+  vec3 n_normal_eye;
+  if (use_normal_map == 1) {
+    n_normal_eye = normalize(normal_texel_eye);
+  } else {
+    n_normal_eye = normalize(normal_eye);
+  }
+
+  // vec3 n_normal_eye = normalize(normal_eye);
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -188,11 +227,11 @@ void main() {
 
   // equation referenced from Disney
 
-  vec3 ggx =
-      GGX_BRDF(n_main_light_direction_eye, n_surface_to_camera_eye, normal_eye);
+  vec3 ggx = GGX_BRDF(n_main_light_direction_eye, n_surface_to_camera_eye,
+                      n_normal_eye);
 
   vec3 fresnel = Fresnel_BRDF(n_main_light_direction_eye,
-                              n_surface_to_camera_eye, normal_eye);
+                              n_surface_to_camera_eye, n_normal_eye);
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 

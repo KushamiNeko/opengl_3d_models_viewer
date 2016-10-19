@@ -9,6 +9,14 @@ GENERAL_HELPER = ~/programming_projects/c/general/bin
 
 PKG_CONFIG_LIBS = glfw3 glew glib-2.0 assimp
 
+all: bin/main bin/obj_model bin/obj_parser bin/camera bin/shader
+
+#bin/gl_gui:
+#	gcc $(FLAGS) `pkg-config --cflags $(PKG_CONFIG_LIBS)` \
+#		-o bin/gl_gui \
+#	 	-lm -lstbi src/gl_gui.c \
+#	 	`pkg-config --libs $(PKG_CONFIG_LIBS)`
+
 bin/main: bin/obj_model bin/obj_parser bin/camera bin/shader
 	gcc $(FLAGS) `pkg-config --cflags $(PKG_CONFIG_LIBS)` \
 	 	-o bin/main bin/obj_model bin/obj_parser bin/shader \

@@ -8,22 +8,44 @@
 #include "../../general/src/general_helper.h"
 #include "../../general/src/gl_helper.h"
 
+#include "../../general/src/linear_math.h"
+
 #include "../../general/src/debug_macro.h"
 
 struct Shader {
   GLuint shaderProgram;
 
+  GLint diffuseColorUniformLoc;
+  int useDiffuseMap;
+  vec3 diffuseColor;
+
+  GLint useDiffuseMapLoc;
+
   char *diffTexFile;
   GLuint diffTex;
   GLint diffTexLoc;
+
+  GLint specColorUniformLoc;
+  int useSpecularMap;
+  vec3 specularColor;
+
+  GLint useSpecularMapLoc;
 
   char *specTexFile;
   GLuint specTex;
   GLint specTexLoc;
 
+  //  GLint specGlossinessUniformLoc;
+  //
+  GLint useNormalMapLoc;
+  int useNormalMap;
+
   char *normalTexFile;
   GLuint normalTex;
   GLint normalTexLoc;
+
+  GLint normalIntensityUniformLoc;
+  float normalIntensity;
 
   const char **cubeMapFile;
   GLuint cubeMapTex;
@@ -33,6 +55,19 @@ struct Shader {
 struct Shader *shaderNew(const char *vertexShader, const char *fragmentShader);
 
 void shaderFree(struct Shader *shader);
+
+void shaderSetUseDiffuseMap(struct Shader *shader, int active);
+
+void shaderSetUseSpecularMap(struct Shader *shader, int active);
+
+void shaderSetUseNormalMap(struct Shader *shader, int active);
+
+void shaderSetDiffuseColor(struct Shader *shader, double r, double g, double b);
+
+void shaderSetSpecularColor(struct Shader *shader, double r, double g,
+                            double b);
+
+void shaderSetNormalIntensity(struct Shader *shader, double intensity);
 
 bool shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
                              GLenum textureSlot);

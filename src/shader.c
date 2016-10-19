@@ -10,6 +10,15 @@
 #define SPECULAR_TEXTURE "spec_tex"
 #define NORMAL_TEXTURE "normal_tex"
 
+#define USE_DIFFUSE_MAP "use_diffuse_map"
+#define USE_SPECULAR_MAP "use_specular_map"
+#define USE_NORMAL_MAP "use_normal_map"
+
+#define DIFFUSE_COLOR "diff_color"
+#define SPECULAR_COLOR "spec_color"
+
+#define NORMAL_INTENSITY "normal_intensity"
+
 #define CUBE_MAP_TEXTURE "cube_map_tex"
 
 static GLuint constShaderProgram(const char *vertFile, const char *fragFile) {
@@ -76,6 +85,48 @@ struct Shader *shaderNew(const char *vertexShader, const char *fragmentShader) {
   re->normalTexLoc = generateTexLoc(&re->shaderProgram, NORMAL_TEXTURE);
   re->cubeMapTexLoc = generateTexLoc(&re->shaderProgram, CUBE_MAP_TEXTURE);
 
+  glUseProgram(re->shaderProgram);
+
+  re->useDiffuseMapLoc =
+      glGetUniformLocation(re->shaderProgram, USE_DIFFUSE_MAP);
+
+  re->useSpecularMapLoc =
+      glGetUniformLocation(re->shaderProgram, USE_SPECULAR_MAP);
+
+  re->useNormalMapLoc = glGetUniformLocation(re->shaderProgram, USE_NORMAL_MAP);
+
+  re->useDiffuseMap = 0;
+  re->useSpecularMap = 0;
+  re->useNormalMap = 0;
+
+  glUniform1f(re->useDiffuseMapLoc, re->useDiffuseMap);
+  glUniform1f(re->useSpecularMapLoc, re->useSpecularMap);
+  glUniform1f(re->useNormalMapLoc, re->useNormalMap);
+
+  re->diffuseColorUniformLoc =
+      glGetUniformLocation(re->shaderProgram, DIFFUSE_COLOR);
+
+  re->specColorUniformLoc =
+      glGetUniformLocation(re->shaderProgram, SPECULAR_COLOR);
+
+  //  re->specGlossinessUniformLoc =
+  //      glGetUniformLocation(re->shaderProgram, "specGloss");
+
+  re->normalIntensityUniformLoc =
+      glGetUniformLocation(re->shaderProgram, NORMAL_INTENSITY);
+
+  // re->diffuseColor = vec3New(1.0f, 1.0f, 1.0f);
+  re->diffuseColor = vec3New(0.0f, 0.0f, 0.0f);
+  re->specularColor = vec3New(1.0f, 1.0f, 1.0f);
+
+  re->normalIntensity = 0.0f;
+
+  glUseProgram(re->shaderProgram);
+  glUniform3fv(re->diffuseColorUniformLoc, 1, vec3GetData(re->diffuseColor));
+  glUniform3fv(re->specColorUniformLoc, 1, vec3GetData(re->specularColor));
+
+  glUniform1f(re->normalIntensityUniformLoc, re->normalIntensity);
+
   return re;
 }
 
@@ -93,6 +144,63 @@ void shaderFree(struct Shader *shader) {
   DEFENSE_FREE(shader);
 }
 
+void shaderSetUseDiffuseMap(struct Shader *shader, int active) {
+  glUseProgram(shader->shaderProgram);
+
+  shader->useDiffuseMap = active;
+  glUniform1i(shader->useDiffuseMapLoc, shader->useDiffuseMap);
+}
+
+void shaderSetUseSpecularMap(struct Shader *shader, int active) {
+  glUseProgram(shader->shaderProgram);
+
+  // glDeleteTextures(1, &shader->specTex);
+
+  shader->useSpecularMap = active;
+  glUniform1i(shader->useSpecularMapLoc, shader->useSpecularMap);
+}
+
+void shaderSetUseNormalMap(struct Shader *shader, int active) {
+  glUseProgram(shader->shaderProgram);
+
+  // glDeleteTextures(1, &shader->normalTex);
+
+  shader->useNormalMap = active;
+  glUniform1i(shader->useNormalMapLoc, shader->useNormalMap);
+}
+
+void shaderSetDiffuseColor(struct Shader *shader, double r, double g,
+                           double b) {
+  vec3GetData(shader->diffuseColor)[0] = r;
+  vec3GetData(shader->diffuseColor)[1] = g;
+  vec3GetData(shader->diffuseColor)[2] = b;
+
+  glUseProgram(shader->shaderProgram);
+  glUniform3fv(shader->diffuseColorUniformLoc, 1,
+               vec3GetData(shader->diffuseColor));
+}
+
+void shaderSetSpecularColor(struct Shader *shader, double r, double g,
+                            double b) {
+  vec3GetData(shader->specularColor)[0] = r;
+  vec3GetData(shader->specularColor)[1] = g;
+  vec3GetData(shader->specularColor)[2] = b;
+
+  glUseProgram(shader->shaderProgram);
+  glUniform3fv(shader->specColorUniformLoc, 1,
+               vec3GetData(shader->specularColor));
+}
+
+void shaderSetNormalIntensity(struct Shader *shader, double intensity) {
+  glUseProgram(shader->shaderProgram);
+  shader->normalIntensity = intensity;
+  glUniform1f(shader->normalIntensityUniformLoc, shader->normalIntensity);
+}
+
+// static bool freeDiffTex = false;
+// static bool freeSpecTex = false;
+// static bool freeNorTex = false;
+
 bool shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
                              GLenum textureSlot) {
   REQUIRE(textureFile != NULL);
@@ -100,6 +208,12 @@ bool shaderSetDiffuseTexture(struct Shader *shader, char *textureFile,
   REQUIRE(fileExist(textureFile));
 
   REQUIRE(shader->diffTex != 0);
+
+  //  if (!freeDiffTex) {
+  //    freeDiffTex = true;
+  //  } else {
+  //    glDeleteTextures(1, &shader->diffTex);
+  //  }
 
   if (loadTexture(textureFile, &shader->shaderProgram, textureSlot,
                   &shader->diffTex, &shader->diffTexLoc) != 1) {
@@ -120,6 +234,12 @@ bool shaderSetSpecularTexture(struct Shader *shader, char *textureFile,
   REQUIRE(shader->specTex != 0);
   // REQUIRE(shader->specTexLoc != 0);
 
+  //  if (!freeSpecTex) {
+  //    freeSpecTex = true;
+  //  } else {
+  //    glDeleteTextures(1, &shader->specTex);
+  //  }
+
   if (loadTexture(textureFile, &shader->shaderProgram, textureSlot,
                   &shader->specTex, &shader->specTexLoc) != 1) {
     printf("failed to load texture: %s\n", textureFile);
@@ -138,6 +258,12 @@ bool shaderSetNormalTexture(struct Shader *shader, char *textureFile,
 
   REQUIRE(shader->normalTex != 0);
   // REQUIRE(shader->normalTexLoc != 0);
+
+  //  if (!freeNorTex) {
+  //    freeNorTex = true;
+  //  } else {
+  //    glDeleteTextures(1, &shader->normalTex);
+  //  }
 
   if (loadTexture(textureFile, &shader->shaderProgram, textureSlot,
                   &shader->normalTex, &shader->normalTexLoc) != 1) {
