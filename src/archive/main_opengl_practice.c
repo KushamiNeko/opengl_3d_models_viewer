@@ -47,7 +47,8 @@
 /*   int params = -1; */
 /*   glGetProgramiv(program, GL_LINK_STATUS, &params); */
 /*   if (GL_TRUE != params) { */
-/*     fprintf(stderr, "ERROR: could not link shader program with index %u\n", */
+/*     fprintf(stderr, "ERROR: could not link shader program with index %u\n",
+ */
 /*             program); */
 /*     _print_program_info_log(program); */
 /*     exit(1); */
@@ -86,7 +87,6 @@ bool camera_control(GLFWwindow *window, float *cam_pos, float *cam_yaw,
                     float cam_speed, float cam_yaw_speed,
                     double elapsed_seconds);
 
-
 // window resize tracking variable
 static int gl_window_width = 1280;
 static int gl_window_height = 720;
@@ -95,15 +95,15 @@ static void glfw_error_callback(int error, const char *description) {
   printf("GLFW ERROR: code %i\nmsg: %s\n", error, description);
 }
 
-static void glfw_window_size_callback(GLFWwindow *window, int width, int height) {
+static void glfw_window_size_callback(GLFWwindow *window, int width,
+                                      int height) {
   gl_window_width = width;
   gl_window_height = height;
 }
 
-
 int main(int argc, const char const *argv[]) {
   // register the error call back function
-  glfwSetErrorCallback(glfw_error_callback);  
+  glfwSetErrorCallback(glfw_error_callback);
 
   // start GL context and os window using GLFW helper library
   if (!glfwInit()) {
@@ -128,7 +128,7 @@ int main(int argc, const char const *argv[]) {
   // GLFWmonitor *mon = glfwGetPrimaryMonitor();
   // const GLFWvidmode *vmode = glfwGetVideoMode(mon);
   // }
-  
+
   // GLFWwindow *window =
   //     glfwCreateWindow(vmode->width, vmode->height, "Hello GL", NULL, NULL);
   // }
@@ -549,5 +549,3 @@ bool camera_control(GLFWwindow *window, float *cam_pos, float *cam_yaw,
 //   glUseProgram(program);
 //   glUniformMatrix4fv(matrix_loc, 1, GL_FALSE, matrix);
 // }
-
-

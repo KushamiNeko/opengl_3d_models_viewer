@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
-#include <math.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -118,15 +117,16 @@ static int ui_piemenu(struct nk_context *ctx, struct nk_vec2 pos, float radius,
       struct nk_vec2 drag =
           nk_vec2(in->mouse.pos.x - center.x, in->mouse.pos.y - center.y);
       float angle = (float)atan2(drag.y, drag.x);
-      if (angle < -0.0f) angle += 2.0f * 3.141592654f;
+      if (angle < -0.0f)
+        angle += 2.0f * 3.141592654f;
       active_item = (int)(angle / step);
 
       for (i = 0; i < item_count; ++i) {
         struct nk_rect content;
         float rx, ry, dx, dy, a;
-        nk_fill_arc(
-            out, center.x, center.y, (bounds.w / 2.0f), a_min, a_max,
-            (active_item == i) ? nk_rgb(45, 100, 255) : nk_rgb(60, 60, 60));
+        nk_fill_arc(out, center.x, center.y, (bounds.w / 2.0f), a_min, a_max,
+                    (active_item == i) ? nk_rgb(45, 100, 255)
+                                       : nk_rgb(60, 60, 60));
 
         /* separator line */
         rx = bounds.w / 2.0f;
@@ -221,7 +221,8 @@ static void grid_demo(struct nk_context *ctx, struct media *media) {
                              nk_vec2(nk_widget_width(ctx), 200))) {
       nk_layout_row_dynamic(ctx, 25, 1);
       for (i = 0; i < 3; ++i)
-        if (nk_combo_item_label(ctx, items[i], NK_TEXT_LEFT)) selected_item = i;
+        if (nk_combo_item_label(ctx, items[i], NK_TEXT_LEFT))
+          selected_item = i;
       nk_combo_end(ctx);
     }
   }
@@ -298,7 +299,8 @@ static void button_demo(struct nk_context *ctx, struct media *media) {
    *           *------------------------------------------------*/
   ui_header(ctx, media, "Push buttons");
   ui_widget(ctx, media, 35);
-  if (nk_button_label(ctx, "Push me")) fprintf(stdout, "pushed!\n");
+  if (nk_button_label(ctx, "Push me"))
+    fprintf(stdout, "pushed!\n");
   ui_widget(ctx, media, 35);
   if (nk_button_image_label(ctx, media->rocket, "Styled", NK_TEXT_CENTERED))
     fprintf(stdout, "rocket!\n");
@@ -308,7 +310,8 @@ static void button_demo(struct nk_context *ctx, struct media *media) {
    *           *------------------------------------------------*/
   ui_header(ctx, media, "Repeater");
   ui_widget(ctx, media, 35);
-  if (nk_button_label(ctx, "Press me")) fprintf(stdout, "pressed!\n");
+  if (nk_button_label(ctx, "Press me"))
+    fprintf(stdout, "pressed!\n");
 
   /*------------------------------------------------
    *      *                  TOGGLE
@@ -334,18 +337,21 @@ static void button_demo(struct nk_context *ctx, struct media *media) {
    *           *------------------------------------------------*/
   ui_header(ctx, media, "Radio buttons");
   ui_widget(ctx, media, 35);
-  if (nk_button_symbol_label(ctx, (option == 0) ? NK_SYMBOL_CIRCLE_OUTLINE
-                                                : NK_SYMBOL_CIRCLE_SOLID,
+  if (nk_button_symbol_label(ctx,
+                             (option == 0) ? NK_SYMBOL_CIRCLE_OUTLINE
+                                           : NK_SYMBOL_CIRCLE_SOLID,
                              "Select", NK_TEXT_LEFT))
     option = 0;
   ui_widget(ctx, media, 35);
-  if (nk_button_symbol_label(ctx, (option == 1) ? NK_SYMBOL_CIRCLE_OUTLINE
-                                                : NK_SYMBOL_CIRCLE_SOLID,
+  if (nk_button_symbol_label(ctx,
+                             (option == 1) ? NK_SYMBOL_CIRCLE_OUTLINE
+                                           : NK_SYMBOL_CIRCLE_SOLID,
                              "Select", NK_TEXT_LEFT))
     option = 1;
   ui_widget(ctx, media, 35);
-  if (nk_button_symbol_label(ctx, (option == 2) ? NK_SYMBOL_CIRCLE_OUTLINE
-                                                : NK_SYMBOL_CIRCLE_SOLID,
+  if (nk_button_symbol_label(ctx,
+                             (option == 2) ? NK_SYMBOL_CIRCLE_OUTLINE
+                                           : NK_SYMBOL_CIRCLE_SOLID,
                              "Select", NK_TEXT_LEFT))
     option = 2;
 
@@ -439,7 +445,8 @@ static void basic_demo(struct nk_context *ctx, struct media *media) {
                            nk_vec2(nk_widget_width(ctx), 200))) {
     nk_layout_row_dynamic(ctx, 35, 1);
     for (i = 0; i < 3; ++i)
-      if (nk_combo_item_label(ctx, items[i], NK_TEXT_LEFT)) selected_item = i;
+      if (nk_combo_item_label(ctx, items[i], NK_TEXT_LEFT))
+        selected_item = i;
     nk_combo_end(ctx);
   }
 
@@ -482,7 +489,8 @@ static void basic_demo(struct nk_context *ctx, struct media *media) {
 
   if (piemenu_active) {
     int ret = ui_piemenu(ctx, piemenu_pos, 140, &media->menu[0], 6);
-    if (ret == -2) piemenu_active = 0;
+    if (ret == -2)
+      piemenu_active = 0;
     if (ret != -1) {
       fprintf(stdout, "piemenu selected: %d\n", ret);
       piemenu_active = 0;
@@ -531,7 +539,8 @@ static struct nk_image icon_load(const char *filename) {
   int x, y, n;
   GLuint tex;
   unsigned char *data = stbi_load(filename, &x, &y, &n, 0);
-  if (!data) die("[SDL]: failed to load image: %s", filename);
+  if (!data)
+    die("[SDL]: failed to load image: %s", filename);
 
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
@@ -550,18 +559,18 @@ static struct nk_image icon_load(const char *filename) {
 
 static void device_init(struct device *dev) {
   GLint status;
-  static const GLchar *vertex_shader = NK_SHADER_VERSION
-      "uniform mat4 ProjMtx;\n"
-      "in vec2 Position;\n"
-      "in vec2 TexCoord;\n"
-      "in vec4 Color;\n"
-      "out vec2 Frag_UV;\n"
-      "out vec4 Frag_Color;\n"
-      "void main() {\n"
-      "   Frag_UV = TexCoord;\n"
-      "   Frag_Color = Color;\n"
-      "   gl_Position = ProjMtx * vec4(Position.xy, 0, 1);\n"
-      "}\n";
+  static const GLchar *vertex_shader =
+      NK_SHADER_VERSION "uniform mat4 ProjMtx;\n"
+                        "in vec2 Position;\n"
+                        "in vec2 TexCoord;\n"
+                        "in vec4 Color;\n"
+                        "out vec2 Frag_UV;\n"
+                        "out vec4 Frag_Color;\n"
+                        "void main() {\n"
+                        "   Frag_UV = TexCoord;\n"
+                        "   Frag_Color = Color;\n"
+                        "   gl_Position = ProjMtx * vec4(Position.xy, 0, 1);\n"
+                        "}\n";
   static const GLchar *fragment_shader = NK_SHADER_VERSION
       "precision mediump float;\n"
       "uniform sampler2D Texture;\n"
@@ -733,7 +742,8 @@ static void device_draw(struct device *dev, struct nk_context *ctx, int width,
 
     /* iterate over and execute each draw command */
     nk_draw_foreach(cmd, ctx, &dev->cmds) {
-      if (!cmd->elem_count) continue;
+      if (!cmd->elem_count)
+        continue;
       glBindTexture(GL_TEXTURE_2D, (GLuint)cmd->texture.id);
       glScissor(
           (GLint)(cmd->clip_rect.x * scale.x),
@@ -793,9 +803,9 @@ int main(int argc, char *argv[]) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//#ifdef __APPLE__
-//  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//#endif
+  //#ifdef __APPLE__
+  //  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  //#endif
   win = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Demo", NULL, NULL);
   glfwMakeContextCurrent(win);
   glfwSetWindowUserPointer(win, &ctx);
@@ -812,79 +822,80 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-//  { /* GUI */
-//    device_init(&device);
-//    {
-//      const void *image;
-//      int w, h;
-//      struct nk_font_config cfg = nk_font_config(0);
-//      cfg.oversample_h = 3;
-//      cfg.oversample_v = 2;
-//      /* Loading one font with different heights is only required if you want
-//       * higher
-//       *      * quality text otherwise you can just set the font height
-//       directly
-//       *           * e.g.: ctx->style.font.height = 20. */
-//      nk_font_atlas_init_default(&atlas);
-//      nk_font_atlas_begin(&atlas);
-//
-//      // media.font_14 = nk_font_atlas_add_from_file(
-//      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 14.0f, &cfg);
-//
-//      media.font_14 = nk_font_atlas_add_from_file(
-//          &atlas, "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
-//          14.0f, &cfg);
-//
-//      // media.font_18 = nk_font_atlas_add_from_file(
-//      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 18.0f, &cfg);
-//      // media.font_20 = nk_font_atlas_add_from_file(
-//      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 20.0f, &cfg);
-//      // media.font_22 = nk_font_atlas_add_from_file(
-//      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 22.0f, &cfg);
-//
-//      image = nk_font_atlas_bake(&atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
-//
-//      device_upload_atlas(&device, image, w, h);
-//
-//      nk_font_atlas_end(&atlas, nk_handle_id((int)device.font_tex),
-//                        &device.null);
-//    }
-//    nk_init_default(&ctx, &media.font_14->handle);
-//  }
-//
-//  /* icons */
-//  glEnable(GL_TEXTURE_2D);
-//  media.unchecked = icon_load("../icon/unchecked.png");
-//  media.checked = icon_load("../icon/checked.png");
-//  media.rocket = icon_load("../icon/rocket.png");
-//  media.cloud = icon_load("../icon/cloud.png");
-//  media.pen = icon_load("../icon/pen.png");
-//  media.play = icon_load("../icon/play.png");
-//  media.pause = icon_load("../icon/pause.png");
-//  media.stop = icon_load("../icon/stop.png");
-//  media.next = icon_load("../icon/next.png");
-//  media.prev = icon_load("../icon/prev.png");
-//  media.tools = icon_load("../icon/tools.png");
-//  media.dir = icon_load("../icon/directory.png");
-//  media.copy = icon_load("../icon/copy.png");
-//  media.convert = icon_load("../icon/export.png");
-//  media.del = icon_load("../icon/delete.png");
-//  media.edit = icon_load("../icon/edit.png");
-//  media.menu[0] = icon_load("../icon/home.png");
-//  media.menu[1] = icon_load("../icon/phone.png");
-//  media.menu[2] = icon_load("../icon/plane.png");
-//  media.menu[3] = icon_load("../icon/wifi.png");
-//  media.menu[4] = icon_load("../icon/settings.png");
-//  media.menu[5] = icon_load("../icon/volume.png");
-//
-//  {
-//    int i;
-//    for (i = 0; i < 9; ++i) {
-//      char buffer[256];
-//      sprintf(buffer, "../images/image%d.png", (i + 1));
-//      media.images[i] = icon_load(buffer);
-//    }
-//  }
+  //  { /* GUI */
+  //    device_init(&device);
+  //    {
+  //      const void *image;
+  //      int w, h;
+  //      struct nk_font_config cfg = nk_font_config(0);
+  //      cfg.oversample_h = 3;
+  //      cfg.oversample_v = 2;
+  //      /* Loading one font with different heights is only required if you
+  //      want
+  //       * higher
+  //       *      * quality text otherwise you can just set the font height
+  //       directly
+  //       *           * e.g.: ctx->style.font.height = 20. */
+  //      nk_font_atlas_init_default(&atlas);
+  //      nk_font_atlas_begin(&atlas);
+  //
+  //      // media.font_14 = nk_font_atlas_add_from_file(
+  //      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 14.0f, &cfg);
+  //
+  //      media.font_14 = nk_font_atlas_add_from_file(
+  //          &atlas, "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
+  //          14.0f, &cfg);
+  //
+  //      // media.font_18 = nk_font_atlas_add_from_file(
+  //      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 18.0f, &cfg);
+  //      // media.font_20 = nk_font_atlas_add_from_file(
+  //      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 20.0f, &cfg);
+  //      // media.font_22 = nk_font_atlas_add_from_file(
+  //      //    &atlas, "../../extra_font/Roboto-Regular.ttf", 22.0f, &cfg);
+  //
+  //      image = nk_font_atlas_bake(&atlas, &w, &h, NK_FONT_ATLAS_RGBA32);
+  //
+  //      device_upload_atlas(&device, image, w, h);
+  //
+  //      nk_font_atlas_end(&atlas, nk_handle_id((int)device.font_tex),
+  //                        &device.null);
+  //    }
+  //    nk_init_default(&ctx, &media.font_14->handle);
+  //  }
+  //
+  //  /* icons */
+  //  glEnable(GL_TEXTURE_2D);
+  //  media.unchecked = icon_load("../icon/unchecked.png");
+  //  media.checked = icon_load("../icon/checked.png");
+  //  media.rocket = icon_load("../icon/rocket.png");
+  //  media.cloud = icon_load("../icon/cloud.png");
+  //  media.pen = icon_load("../icon/pen.png");
+  //  media.play = icon_load("../icon/play.png");
+  //  media.pause = icon_load("../icon/pause.png");
+  //  media.stop = icon_load("../icon/stop.png");
+  //  media.next = icon_load("../icon/next.png");
+  //  media.prev = icon_load("../icon/prev.png");
+  //  media.tools = icon_load("../icon/tools.png");
+  //  media.dir = icon_load("../icon/directory.png");
+  //  media.copy = icon_load("../icon/copy.png");
+  //  media.convert = icon_load("../icon/export.png");
+  //  media.del = icon_load("../icon/delete.png");
+  //  media.edit = icon_load("../icon/edit.png");
+  //  media.menu[0] = icon_load("../icon/home.png");
+  //  media.menu[1] = icon_load("../icon/phone.png");
+  //  media.menu[2] = icon_load("../icon/plane.png");
+  //  media.menu[3] = icon_load("../icon/wifi.png");
+  //  media.menu[4] = icon_load("../icon/settings.png");
+  //  media.menu[5] = icon_load("../icon/volume.png");
+  //
+  //  {
+  //    int i;
+  //    for (i = 0; i < 9; ++i) {
+  //      char buffer[256];
+  //      sprintf(buffer, "../images/image%d.png", (i + 1));
+  //      media.images[i] = icon_load(buffer);
+  //    }
+  //  }
 
   while (!glfwWindowShouldClose(win)) {
     /* High DPI displays */
@@ -894,62 +905,64 @@ int main(int argc, char *argv[]) {
     scale.x = (float)display_width / (float)width;
     scale.y = (float)display_height / (float)height;
 
-//    /* Input */
-//    {
-//      double x, y;
-//      nk_input_begin(&ctx);
-//      glfwPollEvents();
-//      nk_input_key(&ctx, NK_KEY_DEL,
-//                   glfwGetKey(win, GLFW_KEY_DELETE) == GLFW_PRESS);
-//      nk_input_key(&ctx, NK_KEY_ENTER,
-//                   glfwGetKey(win, GLFW_KEY_ENTER) == GLFW_PRESS);
-//      nk_input_key(&ctx, NK_KEY_TAB,
-//                   glfwGetKey(win, GLFW_KEY_TAB) == GLFW_PRESS);
-//      nk_input_key(&ctx, NK_KEY_BACKSPACE,
-//                   glfwGetKey(win, GLFW_KEY_BACKSPACE) == GLFW_PRESS);
-//      nk_input_key(&ctx, NK_KEY_LEFT,
-//                   glfwGetKey(win, GLFW_KEY_LEFT) == GLFW_PRESS);
-//      nk_input_key(&ctx, NK_KEY_RIGHT,
-//                   glfwGetKey(win, GLFW_KEY_RIGHT) == GLFW_PRESS);
-//      nk_input_key(&ctx, NK_KEY_UP, glfwGetKey(win, GLFW_KEY_UP) == GLFW_PRESS);
-//      nk_input_key(&ctx, NK_KEY_DOWN,
-//                   glfwGetKey(win, GLFW_KEY_DOWN) == GLFW_PRESS);
-//      if (glfwGetKey(win, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
-//          glfwGetKey(win, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) {
-//        nk_input_key(&ctx, NK_KEY_COPY,
-//                     glfwGetKey(win, GLFW_KEY_C) == GLFW_PRESS);
-//        nk_input_key(&ctx, NK_KEY_PASTE,
-//                     glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS);
-//        nk_input_key(&ctx, NK_KEY_CUT,
-//                     glfwGetKey(win, GLFW_KEY_X) == GLFW_PRESS);
-//        nk_input_key(&ctx, NK_KEY_CUT,
-//                     glfwGetKey(win, GLFW_KEY_E) == GLFW_PRESS);
-//        nk_input_key(&ctx, NK_KEY_SHIFT, 1);
-//
-//      } else {
-//        nk_input_key(&ctx, NK_KEY_COPY, 0);
-//        nk_input_key(&ctx, NK_KEY_PASTE, 0);
-//        nk_input_key(&ctx, NK_KEY_CUT, 0);
-//        nk_input_key(&ctx, NK_KEY_SHIFT, 0);
-//      }
-//      glfwGetCursorPos(win, &x, &y);
-//      nk_input_motion(&ctx, (int)x, (int)y);
-//      nk_input_button(
-//          &ctx, NK_BUTTON_LEFT, (int)x, (int)y,
-//          glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
-//      nk_input_button(
-//          &ctx, NK_BUTTON_MIDDLE, (int)x, (int)y,
-//          glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS);
-//      nk_input_button(
-//          &ctx, NK_BUTTON_RIGHT, (int)x, (int)y,
-//          glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
-//      nk_input_end(&ctx);
-//    }
-//
-//    /* GUI */
-//    basic_demo(&ctx, &media);
-//    button_demo(&ctx, &media);
-//    grid_demo(&ctx, &media);
+    //    /* Input */
+    //    {
+    //      double x, y;
+    //      nk_input_begin(&ctx);
+    //      glfwPollEvents();
+    //      nk_input_key(&ctx, NK_KEY_DEL,
+    //                   glfwGetKey(win, GLFW_KEY_DELETE) == GLFW_PRESS);
+    //      nk_input_key(&ctx, NK_KEY_ENTER,
+    //                   glfwGetKey(win, GLFW_KEY_ENTER) == GLFW_PRESS);
+    //      nk_input_key(&ctx, NK_KEY_TAB,
+    //                   glfwGetKey(win, GLFW_KEY_TAB) == GLFW_PRESS);
+    //      nk_input_key(&ctx, NK_KEY_BACKSPACE,
+    //                   glfwGetKey(win, GLFW_KEY_BACKSPACE) == GLFW_PRESS);
+    //      nk_input_key(&ctx, NK_KEY_LEFT,
+    //                   glfwGetKey(win, GLFW_KEY_LEFT) == GLFW_PRESS);
+    //      nk_input_key(&ctx, NK_KEY_RIGHT,
+    //                   glfwGetKey(win, GLFW_KEY_RIGHT) == GLFW_PRESS);
+    //      nk_input_key(&ctx, NK_KEY_UP, glfwGetKey(win, GLFW_KEY_UP) ==
+    //      GLFW_PRESS);
+    //      nk_input_key(&ctx, NK_KEY_DOWN,
+    //                   glfwGetKey(win, GLFW_KEY_DOWN) == GLFW_PRESS);
+    //      if (glfwGetKey(win, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+    //          glfwGetKey(win, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) {
+    //        nk_input_key(&ctx, NK_KEY_COPY,
+    //                     glfwGetKey(win, GLFW_KEY_C) == GLFW_PRESS);
+    //        nk_input_key(&ctx, NK_KEY_PASTE,
+    //                     glfwGetKey(win, GLFW_KEY_P) == GLFW_PRESS);
+    //        nk_input_key(&ctx, NK_KEY_CUT,
+    //                     glfwGetKey(win, GLFW_KEY_X) == GLFW_PRESS);
+    //        nk_input_key(&ctx, NK_KEY_CUT,
+    //                     glfwGetKey(win, GLFW_KEY_E) == GLFW_PRESS);
+    //        nk_input_key(&ctx, NK_KEY_SHIFT, 1);
+    //
+    //      } else {
+    //        nk_input_key(&ctx, NK_KEY_COPY, 0);
+    //        nk_input_key(&ctx, NK_KEY_PASTE, 0);
+    //        nk_input_key(&ctx, NK_KEY_CUT, 0);
+    //        nk_input_key(&ctx, NK_KEY_SHIFT, 0);
+    //      }
+    //      glfwGetCursorPos(win, &x, &y);
+    //      nk_input_motion(&ctx, (int)x, (int)y);
+    //      nk_input_button(
+    //          &ctx, NK_BUTTON_LEFT, (int)x, (int)y,
+    //          glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
+    //      nk_input_button(
+    //          &ctx, NK_BUTTON_MIDDLE, (int)x, (int)y,
+    //          glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_MIDDLE) ==
+    //          GLFW_PRESS);
+    //      nk_input_button(
+    //          &ctx, NK_BUTTON_RIGHT, (int)x, (int)y,
+    //          glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
+    //      nk_input_end(&ctx);
+    //    }
+    //
+    //    /* GUI */
+    //    basic_demo(&ctx, &media);
+    //    button_demo(&ctx, &media);
+    //    grid_demo(&ctx, &media);
 
     /* Draw */
     glViewport(0, 0, display_width, display_height);

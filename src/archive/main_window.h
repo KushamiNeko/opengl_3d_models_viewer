@@ -10,9 +10,9 @@
 
 #include "../../general/src/general_helper.h"
 
+#include "camera.h"
 #include "constant.h"
 #include "obj_model.h"
-#include "camera.h"
 
 struct MainWindow {
   GtkWidget *window;

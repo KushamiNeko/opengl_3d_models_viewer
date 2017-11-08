@@ -1,5 +1,5 @@
-#include "obj_model.h"
 #include "camera.h"
+#include "obj_model.h"
 
 #include <cmockery/pbc.h>
 

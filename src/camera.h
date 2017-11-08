@@ -41,8 +41,8 @@ mat4 cameraGetViewMat(struct Camera *camera);
 mat4 cameraGetProjMat(struct Camera *camera);
 
 inline void cameraSetMovementLon(struct Camera *camera, double newLon);
-inline inline void cameraSetMovementLat(struct Camera *camera, double newLat);
-inline inline double cameraGetMovementLon(struct Camera *camera);
-inline inline double cameraGetMovementLat(struct Camera *camera);
+inline void cameraSetMovementLat(struct Camera *camera, double newLat);
+inline double cameraGetMovementLon(struct Camera *camera);
+inline double cameraGetMovementLat(struct Camera *camera);
 
 #endif

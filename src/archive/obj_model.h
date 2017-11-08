@@ -1,8 +1,8 @@
 #ifndef OBJ_MODEL_H
 #define OBJ_MODEL_H
 
-#include "obj_parser.h"
 #include "gl_helper.h"
+#include "obj_parser.h"
 
 #include "../../general/header/general_helper.h"
 

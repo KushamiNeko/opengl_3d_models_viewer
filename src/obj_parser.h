@@ -4,10 +4,10 @@
 #include <GL/glew.h>
 #//include <GLFW/glfw3.h>
 
-#include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //#include "linear_math.h"
 #include "../../general/src/general_helper.h"
@@ -32,8 +32,8 @@ obj *load_obj(const char *file);
 
 #if __LIBRARY_PARSER
 #include <assimp/cimport.h>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #endif
 
 #endif

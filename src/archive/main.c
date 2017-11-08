@@ -1,7 +1,7 @@
-#include "main_window.h"
-#include "obj_model.h"
 #include "camera.h"
 #include "constant.h"
+#include "main_window.h"
+#include "obj_model.h"
 
 int main(int argc, char **argv) {
   gtk_init(&argc, &argv);
