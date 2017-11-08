@@ -17,7 +17,6 @@ static void calcCamT(struct Camera *camera) {
 
   // matFree(identityMat);
   // vecFree(inversePosition);
-
   REQUIRE(camera != NULL);
 
   mat4 identityMat = identityMat4();
